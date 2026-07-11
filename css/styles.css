@@ -1,0 +1,163 @@
+/* =====================================================================
+   Carino Asobi — shared stylesheet
+   Gold-on-black Carino design system (IBM Plex + Shippori Mincho for 漢字).
+   Provides :root tokens, the navbar, the slice-menu chooser, and a small set
+   of generic UI helpers (.btn, .panel, .seg, .badge). Each game module injects
+   its own component CSS and relies on these tokens.
+   ===================================================================== */
+
+:root {
+  --bg-header:  #050505;
+  --bg:         #0a0a0a;
+  --panel:      #0e0e0e;
+  --card:       #131313;
+  --elev:       #191919;
+  --accent:     #eab308;          /* gold */
+  --accent-2:   #b45309;
+  --accent-faint: rgba(234,179,8,0.07);
+  --accent-glow:  rgba(234,179,8,0.20);
+  --vermilion:  #d1442f;          /* Japanese red accent */
+  --jade:       #3f9d6d;
+  --border:     #262626;
+  --border-soft:#1b1b1b;
+  --text:       #ffffff;
+  --text-sec:   #a3a3a3;
+  --text-muted: #8a8a8a;
+  --ok:         #22c55e;
+  --warn:       #ef4444;
+
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --display: 'Red Hat Display', var(--sans);
+  --jp: 'Shippori Mincho', 'Noto Serif JP', serif;
+  --nav-h: 66px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--sans); line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column; min-height: 100%;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 82% -8%, rgba(234,179,8,0.06), transparent 60%),
+    radial-gradient(760px 520px at -5% 8%, rgba(209,68,47,0.05), transparent 58%);
+}
+
+/* ===================== Navbar ===================== */
+.top-header {
+  height: var(--nav-h); position: sticky; top: 0; z-index: 200; flex-shrink: 0;
+  background: linear-gradient(180deg, #0f0f0f 0%, #050505 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 20px; gap: 16px;
+}
+.header-left  { display: flex; align-items: center; gap: 20px; min-width: 0; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.brand-name {
+  font-family: var(--display); font-size: 1.55rem; font-weight: 900; line-height: 1; white-space: nowrap;
+  background: linear-gradient(130deg, #fef08a 0%, #eab308 50%, #b45309 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.brand-name .app-tag {
+  -webkit-text-fill-color: var(--accent); font-family: var(--jp); font-size: .8rem; font-weight: 700;
+  border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; margin-left: 10px; vertical-align: middle;
+}
+.header-clock { display: flex; align-items: baseline; gap: 10px; border-left: 1px solid var(--border); padding-left: 20px; }
+.clock-time { font-family: var(--mono); font-size: 1.05rem; font-weight: 700; }
+.clock-tz { font-family: var(--mono); font-size: .6rem; font-weight: 700; color: var(--bg-header); background: var(--accent); padding: 2px 6px; border-radius: 3px; }
+.brand-greeting { font-family: var(--jp); font-size: .8rem; color: var(--text-sec); margin-left: 4px; }
+.social-row { display: flex; gap: 8px; }
+.icon-btn {
+  width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: .2s; background: transparent;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--bg-header); background: var(--accent); transform: translateY(-2px); }
+.icon-btn svg { width: 15px; height: 15px; }
+
+/* ===================== Overview + slice menu ===================== */
+.overview-head { max-width: 1000px; margin: 0 auto; padding: 46px 24px 22px; text-align: center; }
+.kicker {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent);
+  border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; display: inline-block;
+}
+.overview-title { font-family: var(--display); font-weight: 900; letter-spacing: -.02em; font-size: clamp(2rem, 5.5vw, 3.3rem); line-height: 1.05; margin: 18px 0 12px; }
+.overview-title em { font-style: normal; font-family: var(--jp); background: linear-gradient(130deg, #fef08a, #eab308 55%, #b45309); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.overview-sub { color: var(--text-sec); max-width: 640px; margin: 0 auto; font-size: 1.04rem; }
+body.state-playing .overview-head { display: none; }
+
+.slice-menu { display: flex; width: 100%; flex: 1 1 auto; }
+body.state-overview .slice-menu { min-height: calc(100vh - var(--nav-h) - 210px); border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); }
+.slice {
+  flex: 1; position: relative; overflow: hidden; cursor: pointer; color: inherit; font-family: inherit; border: none;
+  border-right: 1px solid var(--border); background: linear-gradient(180deg, #0e0e0e, #090909);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  transition: flex .45s cubic-bezier(.25,1,.5,1), background .3s;
+}
+.slice:last-child { border-right: none; }
+.slice-bg { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: .45s ease; background: radial-gradient(circle at 50% 42%, var(--glow, var(--accent-glow)) 0%, transparent 62%); }
+body.state-overview .slice:hover { flex: 1.4; background: #121212; }
+body.state-overview .slice:hover .slice-bg { opacity: 1; }
+body.state-overview .slice:hover .slice-kanji { transform: translateY(-4px); color: var(--hue, var(--accent)); }
+.slice-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px 22px; }
+.slice-kanji { font-family: var(--jp); font-size: 4.4rem; font-weight: 800; line-height: 1; color: var(--text); transition: .3s ease; text-shadow: 0 6px 24px rgba(0,0,0,.6); }
+.slice-title { font-family: var(--display); font-size: 1.6rem; font-weight: 900; letter-spacing: -.01em; }
+.slice-blurb { font-size: .9rem; color: var(--text-sec); max-width: 260px; line-height: 1.5; }
+.slice-tag { font-family: var(--mono); font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border-soft); border-radius: 999px; padding: 3px 10px; }
+
+body.state-playing .slice-menu { position: sticky; top: var(--nav-h); z-index: 150; min-height: 0; height: 50px; background: var(--bg-header); border-bottom: 1px solid var(--border); flex: 0 0 auto; }
+body.state-playing .slice-kanji { font-size: 1.15rem; }
+body.state-playing .slice-blurb, body.state-playing .slice-tag { display: none; }
+body.state-playing .slice-inner { flex-direction: row; gap: 9px; padding: 0 16px; }
+body.state-playing .slice-title { font-size: .92rem; font-weight: 700; }
+body.state-playing .slice:hover { background: #141414; }
+body.state-playing .slice.active { background: #151515; box-shadow: inset 0 2px 0 var(--hue, var(--accent)); }
+body.state-playing .slice.active .slice-title { color: var(--hue, var(--accent)); }
+body.state-playing .slice:not(.active) .slice-title { color: var(--text-sec); }
+
+/* game host */
+.game-host { flex: 1 1 auto; width: 100%; }
+body.state-overview .game-host { display: none; }
+
+/* ===================== Generic UI helpers (for game modules) ===================== */
+.btn {
+  font-family: var(--mono); font-size: .78rem; letter-spacing: .03em; padding: 9px 16px; border-radius: 6px;
+  cursor: pointer; transition: .16s; border: 1px solid var(--border); background: transparent; color: var(--text);
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-faint); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 700; }
+.btn-accent:hover { box-shadow: 0 6px 18px var(--accent-glow); color: #1a1205; background: var(--accent); transform: translateY(-1px); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.panel-h { font-family: var(--mono); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+
+/* segmented control */
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { background: transparent; border: none; color: var(--text-sec); font-family: var(--mono); font-size: .72rem; padding: 7px 12px; cursor: pointer; transition: .15s; border-right: 1px solid var(--border); }
+.seg button:last-child { border-right: none; }
+.seg button.active { background: var(--accent); color: #1a1205; font-weight: 700; }
+.seg button:not(.active):hover { color: var(--accent); background: var(--accent-faint); }
+
+.badge { font-family: var(--mono); font-size: .7rem; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; color: var(--text-sec); }
+
+/* ===================== Footer ===================== */
+.foot { border-top: 1px solid var(--border-soft); padding: 20px 24px; flex-shrink: 0; }
+.foot-inner { max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--mono); font-size: .74rem; color: var(--text-muted); }
+.foot-inner b { color: var(--accent); }
+.foot-inner a { color: var(--text-sec); border-bottom: 1px solid var(--border); }
+.foot-inner a:hover { color: var(--accent); }
+
+@media (max-width: 760px) {
+  .header-clock { display: none; }
+  body.state-overview .slice-menu { flex-direction: column; min-height: 0; }
+  body.state-overview .slice { border-right: none; border-bottom: 1px solid var(--border); min-height: 160px; }
+  body.state-overview .slice:hover { flex: 1; }
+}
