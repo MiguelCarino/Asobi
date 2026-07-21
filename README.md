@@ -62,4 +62,4 @@ core and node-testable (`module.exports`), which is how they're validated:
 
 ## License
 
-MIT — part of the [carino.systems](https://carino.systems/) workshop.
+AGPL-3.0 — part of the [carino.systems](https://carino.systems/) workshop.
