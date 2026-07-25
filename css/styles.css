@@ -24,7 +24,7 @@
   --text-sec:   #a3a3a3;
   --text-muted: #8a8a8a;
   --ok:         #22c55e;
-  --warn:       #ef4444;
+  --err:        #ef4444;
 
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
@@ -61,15 +61,17 @@ body::before {
 }
 .header-left  { display: flex; align-items: center; gap: 20px; min-width: 0; }
 .header-right { display: flex; align-items: center; gap: 12px; }
+.cn-brand { display: flex; align-items: center; flex-shrink: 0; }
 .brand-name {
   font-family: var(--display); font-size: 1.55rem; font-weight: 900; line-height: 1; white-space: nowrap;
   background: linear-gradient(130deg, #fef08a 0%, #eab308 50%, #b45309 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.brand-name .app-tag {
-  -webkit-text-fill-color: var(--accent); font-family: var(--jp); font-size: .8rem; font-weight: 700;
-  border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; margin-left: 10px; vertical-align: middle;
+.cn-brand .app-tag {
+  color: var(--accent); font-family: var(--jp); font-size: .8rem; font-weight: 700;
+  border: 1px solid var(--border); border-radius: 5px; padding: 2px 8px; margin-left: 10px; transition: .2s;
 }
+.cn-brand .app-tag:hover { border-color: var(--accent); background: var(--accent-faint); }
 .header-clock { display: flex; align-items: baseline; gap: 10px; border-left: 1px solid var(--border); padding-left: 20px; }
 .clock-time { font-family: var(--mono); font-size: 1.05rem; font-weight: 700; }
 .clock-tz { font-family: var(--mono); font-size: .6rem; font-weight: 700; color: var(--bg-header); background: var(--accent); padding: 2px 6px; border-radius: 3px; }

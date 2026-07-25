@@ -471,7 +471,7 @@
   .shogi-cell.dest::after{content:"";position:absolute;width:34%;height:34%;border-radius:50%;background:var(--accent);opacity:.55;}
   .shogi-cell.dest.cap::after{width:76%;height:76%;border-radius:6px;background:transparent;border:3px solid var(--accent);opacity:.7;}
   .shogi-cell.last{background:rgba(234,179,8,.10);}
-  .shogi-cell.check{background:rgba(239,68,68,.22);box-shadow:inset 0 0 0 2px var(--warn);}
+  .shogi-cell.check{background:rgba(239,68,68,.22);box-shadow:inset 0 0 0 2px var(--err);}
   .shogi-cell.clickable{cursor:pointer;}
   .shogi-cell.clickable:hover{background:rgba(255,255,255,.05);}
   .shogi-hand{border:1px solid var(--border);background:var(--card);border-radius:10px;padding:8px 10px;display:flex;
@@ -492,7 +492,7 @@
   .shogi-banner.show{display:block;}
   .shogi-banner.win{background:var(--accent);color:#1a1205;}
   .shogi-banner.draw{background:var(--elev);color:var(--text);border:1px solid var(--border);}
-  .shogi-check{color:var(--warn);font-weight:700;}
+  .shogi-check{color:var(--err);font-weight:700;}
   .shogi-think{color:var(--accent);}
   .shogi-log{list-style:none;margin:0;padding:0;max-height:320px;overflow:auto;font-family:var(--mono);font-size:.72rem;}
   .shogi-log li{display:flex;gap:8px;padding:2px 4px;border-bottom:1px solid var(--border-soft);}

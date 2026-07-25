@@ -83,7 +83,6 @@
       return;
     }
     buildSlices();
-    $("#brandHome").addEventListener("click", (e) => { e.preventDefault(); location.hash = ""; });
     window.addEventListener("hashchange", route);
     $("#year").textContent = new Date().getFullYear();
     route();
