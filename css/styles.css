@@ -8,10 +8,10 @@
 
 :root {
   --bg-header:  #050505;
-  --bg:         #0a0a0a;
-  --panel:      #0e0e0e;
-  --card:       #131313;
-  --elev:       #191919;
+  --bg:         #050505;
+  --panel:      #0b0b0b;
+  --card:       #0b0b0b;
+  --elev:       #0d0d0d;
   --accent:     #eab308;          /* gold */
   --accent-2:   #b45309;
   --accent-faint: rgba(234,179,8,0.07);
