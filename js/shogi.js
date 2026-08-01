@@ -523,6 +523,19 @@
     return e;
   }
 
+  /* ---------- i18n ----------
+     i18n.js is deferred, so window.t does not exist yet when this file runs;
+     resolve it lazily on every call. Labels that are built once (the control
+     strip, panel headers, buttons) remember their source key in data-gt so a
+     language switch can re-label them in place instead of rebuilding the UI
+     and throwing away the game in progress. Everything render() rebuilds
+     every frame just calls T() directly.
+     data-gt (not data-i18n) on purpose: the shell's applyStaticI18n() walks
+     [data-i18n] across the whole document and would capture our already
+     translated text as the key, making the switch back to English lossy. */
+  const T = (s) => (window.t ? window.t(s) : s);
+  function gt(node, key) { node.dataset.gt = key; node.textContent = T(key); return node; }
+
   function init(container) {
     injectCSS();
 
@@ -596,7 +609,7 @@
     const side = el("div", "shogi-side");
     const banner = el("div", "shogi-banner");
     const statusP = el("div", "panel");
-    statusP.appendChild(el("div", "panel-h", "対局 · Status"));
+    statusP.appendChild(gt(el("div", "panel-h"), "対局 · Status"));
     const status = el("div", "shogi-status");
     statusP.appendChild(status);
     const btnrow = el("div", "shogi-btnrow");
@@ -605,7 +618,7 @@
     btnrow.appendChild(btn("投了", "btn", resign));
     btnrow.appendChild(btn("反転", "btn", () => { S.flipped = !S.flipped; render(); }));
     const logP = el("div", "panel");
-    logP.appendChild(el("div", "panel-h", "棋譜 · Moves"));
+    logP.appendChild(gt(el("div", "panel-h"), "棋譜 · Moves"));
     const logList = el("ol", "shogi-log");
     logP.appendChild(logList);
     side.appendChild(banner);
@@ -641,7 +654,7 @@
     function seg(opts, val, cb) {
       const box = el("div", "seg");
       opts.forEach(([v, label]) => {
-        const b = el("button", v === val ? "active" : "", label);
+        const b = gt(el("button", v === val ? "active" : ""), label);
         b.type = "button";
         b.dataset.v = v;
         b.addEventListener("click", () => {
@@ -652,8 +665,8 @@
       });
       return box;
     }
-    function labelEl(t) { const l = el("label", "lbl", t); return l; }
-    function btn(t, cls, cb) { const b = el("button", "btn " + (cls === "btn-accent" ? "btn-accent" : ""), t); b.type = "button"; b.addEventListener("click", cb); return b; }
+    function labelEl(t) { return gt(el("label", "lbl"), t); }
+    function btn(t, cls, cb) { const b = gt(el("button", "btn " + (cls === "btn-accent" ? "btn-accent" : "")), t); b.type = "button"; b.addEventListener("click", cb); return b; }
 
     /* ---------- interaction ---------- */
     function isHumanControlled(sd) {
@@ -740,14 +753,14 @@
       S.legalAll = genLegalMoves(st);
       // repetition
       if (checkRepetition()) {
-        endGame({ text: "千日手 — Draw (repetition)", cls: "draw" });
+        endGame({ key: "千日手 — Draw (repetition)", cls: "draw" });
         render(); return;
       }
       if (S.legalAll.length === 0) {
         const check = isKingAttacked(st, st.turn);
         const winner = 1 - st.turn;
         const wname = winner === 0 ? "先手 Sente" : "後手 Gote";
-        endGame({ text: (check ? "詰み Checkmate — " : "行き詰まり — ") + wname + " wins", cls: "win" });
+        endGame({ key: check ? "詰み Checkmate" : "行き詰まり", who: wname, cls: "win" });
         render(); return;
       }
       render();
@@ -800,7 +813,7 @@
     function toggleAiai() {
       if (S.mode !== "aiai") return;
       S.aiRunning = !S.aiRunning;
-      S.els.startBtn.textContent = S.aiRunning ? "停止" : "開始";
+      gt(S.els.startBtn, S.aiRunning ? "停止" : "開始");
       if (S.aiRunning) maybeAI(); else { clearTimeout(S.aiTimer); S.aiTimer = null; S.thinking = false; renderStatus(); }
     }
 
@@ -815,7 +828,7 @@
       S.result = null;
       S.thinking = false;
       S.aiRunning = false;
-      S.els.startBtn.textContent = "開始";
+      gt(S.els.startBtn, "開始");
       clearSel();
       S.legalAll = genLegalMoves(cur());
       render();
@@ -830,7 +843,7 @@
         S.log.pop();
       }
       S.gameOver = false; S.result = null;
-      S.aiRunning = false; S.els.startBtn.textContent = "開始";
+      S.aiRunning = false; gt(S.els.startBtn, "開始");
       S.aiSeq++;
       clearTimeout(S.aiTimer); S.aiTimer = null;
       S.lastMove = null;
@@ -844,7 +857,7 @@
       const loser = cur().turn;
       const winner = 1 - loser;
       const wname = winner === 0 ? "先手 Sente" : "後手 Gote";
-      endGame({ text: "投了 Resignation — " + wname + " wins", cls: "win" });
+      endGame({ key: "投了 Resignation", who: wname, cls: "win" });
       render();
     }
 
@@ -932,7 +945,7 @@
       box.innerHTML = "";
       box.classList.toggle("turn", !S.gameOver && st.turn === sd);
       const name = sd === 0 ? "先手 持駒" : "後手 持駒";
-      box.appendChild(el("span", "hlbl", name));
+      box.appendChild(el("span", "hlbl", T(name)));
       const ord = ["R", "B", "G", "S", "N", "L", "P"];
       const hand = st.hands[sd];
       const human = humanTurn();
@@ -955,19 +968,23 @@
     function renderStatus() {
       const st = cur();
       const turnName = st.turn === 0
-        ? '<span class="turn-s">先手 Sente</span>'
-        : '<span class="turn-g">後手 Gote</span>';
-      let html = "手番 Turn: " + turnName + "<br>";
-      html += "手数 Ply: " + (S.snapshots.length - 1) + "<br>";
+        ? '<span class="turn-s">' + T("先手 Sente") + "</span>"
+        : '<span class="turn-g">' + T("後手 Gote") + "</span>";
+      let html = T("手番 Turn") + ": " + turnName + "<br>";
+      html += T("手数 Ply") + ": " + (S.snapshots.length - 1) + "<br>";
       const inCheck = isKingAttacked(st, st.turn);
-      if (!S.gameOver && inCheck) html += '<span class="shogi-check">王手！ Check</span><br>';
-      if (S.thinking) html += '<span class="shogi-think">思考中… thinking</span>';
+      if (!S.gameOver && inCheck) html += '<span class="shogi-check">' + T("王手！ Check") + "</span><br>";
+      if (S.thinking) html += '<span class="shogi-think">' + T("思考中… thinking") + "</span>";
       S.els.status.innerHTML = html;
 
       const b = S.els.banner;
       if (S.gameOver && S.result) {
         b.className = "shogi-banner show " + (S.result.cls || "win");
-        b.textContent = S.result.text;
+        // Composed at paint time, not at endGame time, so the banner follows a
+        // mid-game language switch.
+        b.textContent = S.result.who
+          ? T(S.result.key) + " — " + T(S.result.who) + " " + T("wins")
+          : T(S.result.key);
       } else {
         b.className = "shogi-banner";
         b.textContent = "";
@@ -987,6 +1004,15 @@
       list.scrollTop = list.scrollHeight;
     }
 
+    /* ---------- language switch ---------- */
+    // Re-label the build-once controls from their data-gt keys, then repaint
+    // the board/status/log. The position, hands and move log are untouched.
+    function relocalize() {
+      root.querySelectorAll("[data-gt]").forEach((n) => { n.textContent = T(n.dataset.gt); });
+      render();
+    }
+    window.addEventListener("carino:langchange", relocalize);
+
     /* ---------- boot ---------- */
     S.els.sideGrp.style.display = S.mode === "hvai" ? "flex" : "none";
     S.els.aiaiGrp.style.display = S.mode === "aiai" ? "flex" : "none";
@@ -1000,6 +1026,7 @@
       S.aiRunning = false;
       clearTimeout(S.aiTimer);
       S.aiTimer = null;
+      window.removeEventListener("carino:langchange", relocalize);
       const back = document.querySelector(".shogi-promo-back");
       if (back && back.parentNode) back.parentNode.removeChild(back);
     };

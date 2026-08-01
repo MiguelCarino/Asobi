@@ -527,6 +527,29 @@
     return e;
   }
 
+  /* ---------- i18n ----------
+     i18n.js is deferred, so window.t does not exist yet when this file runs;
+     resolve it lazily on every call. Card names, flowers and yaku names are
+     game data and stay untranslated. Controls that are built once remember
+     their key in data-gt so a language switch can re-label them in place;
+     everything render() rebuilds each frame just calls T(). data-gt rather
+     than data-i18n on purpose — the shell's applyStaticI18n() walks
+     [data-i18n] document-wide and would latch onto our translated text. */
+  var T = function (s) { return window.t ? window.t(s) : s; };
+  // gt(node, key[, prefix]) — prefix is untranslated data (e.g. "6 ") kept in
+  // front of the translated word; relabel() below recomposes from the dataset.
+  function gt(node, key, prefix) {
+    node.dataset.gt = key;
+    if (prefix != null) node.dataset.gtPre = prefix;
+    node.textContent = (node.dataset.gtPre || "") + T(key);
+    return node;
+  }
+  function relabel(root) {
+    Array.prototype.forEach.call(root.querySelectorAll("[data-gt]"), function (n) {
+      n.textContent = (n.dataset.gtPre || "") + T(n.dataset.gt);
+    });
+  }
+
   function typeClass(c) {
     if (c.type === "bright") return "t-bright";
     if (c.type === "animal") return "t-animal";
@@ -577,20 +600,23 @@
 
     // persistent chrome
     var top = el("div", "hana-top");
-    var newBtn = el("button", "btn btn-accent", "New Match");
+    var newBtn = gt(el("button", "btn btn-accent"), "New Match");
     var roundsSeg = el("div", "seg");
     [3, 6, 12].forEach(function (n) {
-      var b = el("button", n === 6 ? "active" : "", n + " rounds");
+      // The count is data, so only the word "rounds" carries a key.
+      var b = el("button", n === 6 ? "active" : "");
       b.dataset.n = n;
+      gt(b, "rounds", n + " ");
       roundsSeg.appendChild(b);
     });
     var diffSeg = el("div", "seg");
     ["Normal", "Hard"].forEach(function (d, i) {
-      var b = el("button", i === 0 ? "active" : "", d);
+      var b = el("button", i === 0 ? "active" : "");
       b.dataset.d = d.toLowerCase();
+      gt(b, d);
       diffSeg.appendChild(b);
     });
-    var rulesBtn = el("button", "btn", "Rules");
+    var rulesBtn = gt(el("button", "btn"), "Rules");
     var status = el("div", "hana-status");
     top.appendChild(newBtn);
     top.appendChild(roundsSeg);
@@ -600,7 +626,7 @@
     top.appendChild(status);
     root.appendChild(top);
 
-    var msgEl = el("div", "hana-msg", "Press New Match to begin.");
+    var msgEl = el("div", "hana-msg");
     root.appendChild(msgEl);
 
     var decideEl = el("div", "hana-decide hidden");
@@ -623,7 +649,16 @@
     var lastYakuKeys = [{}, {}]; // for 'new' highlight
     var justIds = {};        // cards to pop-animate this render
 
-    function setMsg(html) { msgEl.innerHTML = html; }
+    // The running commentary is stored as a thunk, not as finished HTML, so a
+    // mid-round language switch can repaint the current line instead of
+    // leaving it stranded in the previous language until the next move.
+    var msgFn = function () { return T("Press New Match to begin."); };
+    function setMsg(fn) {
+      msgFn = fn;
+      msgEl.innerHTML = fn();
+    }
+    function paintMsg() { msgEl.innerHTML = msgFn(); }
+    paintMsg();
 
     /* ---------- flow ---------- */
     function newMatch() {
@@ -640,9 +675,12 @@
       pending = null; pendingDraw = null;
       lastYakuKeys = [{}, {}];
       decideEl.classList.add("hidden");
-      var who = turn === 0 ? "You" : "AI";
-      setMsg("Round " + match.round + " — " + (match.dealer === 0 ? "you deal" : "AI deals") +
-        ". " + who + " to move.");
+      var dealKey = match.dealer === 0 ? "you deal" : "AI deals";
+      var moveKey = turn === 0 ? "You to move." : "AI to move.";
+      var rnd = match.round;
+      setMsg(function () {
+        return T("Round") + " " + rnd + " — " + T(dealKey) + ". " + T(moveKey);
+      });
       render();
       if (turn === 1) timer(aiTurn, 850);
     }
@@ -660,7 +698,9 @@
       if (matches.length === 0) {
         state.field.push(d);
         justIds[d.id] = 1;
-        setMsg(who + " " + d.name + " " + d.flower + " — no match, laid on field.");
+        setMsg(function () {
+          return T(who) + " " + d.name + " " + d.flower + " — " + T("no match, laid on field.");
+        });
         render();
         timer(done, 650);
         return;
@@ -669,7 +709,9 @@
         var target = matches.length >= 3 ? "all" : (pl === 1 ? bestFieldTarget(matches) : matches[0]);
         var taken = takeCapture(state, pl, d, matches, target);
         justIds[d.id] = 1; for (var i = 0; i < taken.length; i++) justIds[taken[i].id] = 1;
-        setMsg(who + " " + d.name + " " + d.flower + " — captured!");
+        setMsg(function () {
+          return T(who) + " " + d.name + " " + d.flower + " — " + T("captured!");
+        });
         render();
         timer(done, 700);
         return;
@@ -677,7 +719,9 @@
       // human, exactly 2 matches → choose
       pendingDraw = { card: d, matches: matches, done: done };
       phase = "chooseFieldDraw";
-      setMsg("You drew " + d.name + " " + d.flower + " — pick which field card to capture.");
+      setMsg(function () {
+        return T("You drew") + " " + d.name + " " + d.flower + " — " + T("pick which field card to capture.");
+      });
       render();
     }
 
@@ -694,13 +738,15 @@
           var stop = aiKoi(state, pl, sc.total, rng, match.difficulty === "hard");
           state.yakuTotal[pl] = sc.total;
           if (stop) {
-            setMsg('AI declares <b style="color:var(--accent)">Stop</b> with ' + sc.total + " pts!");
+            setMsg(function () {
+              return T('AI declares <b style="color:var(--accent)">Stop</b> with') + " " + sc.total + " " + T("pts!");
+            });
             render();
             timer(function () { endRound(pl); }, 900);
             return;
           } else {
             state.koi[pl] = true;
-            setMsg('AI calls <b style="color:var(--hue)">Koi-Koi!</b> — pressing on.');
+            setMsg(function () { return T('AI calls <b style="color:var(--hue)">Koi-Koi!</b> — pressing on.'); });
             render();
             timer(function () { endTurn(pl); }, 950);
             return;
@@ -724,21 +770,21 @@
 
     function endRound(winner) {
       phase = "roundOver";
-      var line;
       if (winner === null) {
-        line = "Round drawn — no score. Dealer keeps the deal.";
+        setMsg(function () { return T("Round drawn — no score. Dealer keeps the deal."); });
       } else {
         var base = state.yakuTotal[winner];
         var pts = finalScore(base, state.koi[winner]);
         match.scores[winner] += pts;
-        var who = winner === 0 ? "You" : "AI";
+        var winKey = winner === 0 ? "You win the round" : "AI wins the round";
         var mult = [];
         if (base >= 7) mult.push("×2 (7+)");
         if (state.koi[winner]) mult.push("×2 koi");
-        line = '<b style="color:var(--accent)">' + who + " win the round</b>: base " + base +
-          (mult.length ? " " + mult.join(" ") : "") + " = <b>" + pts + " pts</b>.";
+        setMsg(function () {
+          return '<b style="color:var(--accent)">' + T(winKey) + "</b>: " + T("base") + " " + base +
+            (mult.length ? " " + mult.join(" ") : "") + " = <b>" + pts + " " + T("pts") + "</b>.";
+        });
       }
-      setMsg(line);
       render();
       timer(function () {
         if (match.round >= match.rounds) { declareMatch(); return; }
@@ -750,19 +796,21 @@
 
     function declareMatch() {
       phase = "matchOver";
-      var s = match.scores, res;
-      if (s[0] > s[1]) res = 'You win the match! 🎉';
-      else if (s[1] > s[0]) res = "The AI wins the match.";
-      else res = "The match is a tie.";
-      setMsg('<b style="color:var(--accent)">Match over</b> — You ' + s[0] + " · AI " + s[1] +
-        ". " + res + " Press New Match to play again.");
+      var s = match.scores, resKey;
+      if (s[0] > s[1]) resKey = "You win the match! 🎉";
+      else if (s[1] > s[0]) resKey = "The AI wins the match.";
+      else resKey = "The match is a tie.";
+      setMsg(function () {
+        return '<b style="color:var(--accent)">' + T("Match over") + "</b> — " + T("You") + " " + s[0] +
+          " · " + T("AI") + " " + s[1] + ". " + T(resKey) + " " + T("Press New Match to play again.");
+      });
       render();
     }
 
     /* ---------- AI turn (animated) ---------- */
     function aiTurn() {
       if (phase !== "play" || turn !== 1) return;
-      setMsg('<span class="thinking">AI thinking<i></i><i></i><i></i></span>');
+      setMsg(function () { return '<span class="thinking">' + T("AI thinking") + "<i></i><i></i><i></i></span>"; });
       render();
       timer(function () {
         var pl = 1;
@@ -771,8 +819,10 @@
         var matches = monthMatches(card, state.field);
         var taken = takeCapture(state, pl, card, matches, plan.target);
         justIds[card.id] = 1; for (var i = 0; i < taken.length; i++) justIds[taken[i].id] = 1;
-        setMsg("AI plays " + card.name + " " + card.flower +
-          (matches.length ? " — captured!" : " — laid on field."));
+        setMsg(function () {
+          return T("AI plays") + " " + card.name + " " + card.flower + " — " +
+            T(matches.length ? "captured!" : "laid on field.");
+        });
         render();
         timer(function () { proceedToDraw(pl); }, 750);
       }, 800);
@@ -786,7 +836,9 @@
       if (matches.length === 2) {
         pending = { i: i, card: card, matches: matches };
         phase = "chooseFieldPlay";
-        setMsg("You play " + card.name + " " + card.flower + " — pick which field card to capture.");
+        setMsg(function () {
+          return T("You play") + " " + card.name + " " + card.flower + " — " + T("pick which field card to capture.");
+        });
         render();
         return;
       }
@@ -794,7 +846,10 @@
       var target = matches.length >= 3 ? "all" : (matches.length === 1 ? matches[0] : null);
       var taken = takeCapture(state, 0, card, matches, target);
       justIds[card.id] = 1; for (var k = 0; k < taken.length; k++) justIds[taken[k].id] = 1;
-      setMsg("You play " + card.name + " " + card.flower + (matches.length ? " — captured!" : " — laid on field."));
+      setMsg(function () {
+        return T("You play") + " " + card.name + " " + card.flower + " — " +
+          T(matches.length ? "captured!" : "laid on field.");
+      });
       render();
       timer(function () { proceedToDraw(0); }, 500);
     }
@@ -807,7 +862,7 @@
         var taken = takeCapture(state, 0, card, pending.matches, f);
         justIds[card.id] = 1; for (var k = 0; k < taken.length; k++) justIds[taken[k].id] = 1;
         pending = null; phase = "play";
-        setMsg("You capture " + f.name + " with " + card.name + ".");
+        setMsg(function () { return T("You capture") + " " + f.name + " " + T("with") + " " + card.name + "."; });
         render();
         timer(function () { proceedToDraw(0); }, 500);
       } else if (phase === "chooseFieldDraw") {
@@ -816,7 +871,7 @@
         var tk = takeCapture(state, 0, d, pendingDraw.matches, f);
         justIds[d.id] = 1; for (var j = 0; j < tk.length; j++) justIds[tk[j].id] = 1;
         pendingDraw = null; phase = "play";
-        setMsg("You capture " + f.name + " with the drawn " + d.name + ".");
+        setMsg(function () { return T("You capture") + " " + f.name + " " + T("with the drawn") + " " + d.name + "."; });
         render();
         timer(done, 500);
       }
@@ -825,13 +880,14 @@
     function showDecision(total) {
       decideEl.classList.remove("hidden");
       decideEl.innerHTML = "";
-      var q = el("div", "hd-q", "You formed a yaku worth <b>" + total + "</b> points. Stop and score, or Koi-Koi?");
+      var q = el("div", "hd-q", T("You formed a yaku worth") + " <b>" + total + "</b> " +
+        T("points. Stop and score, or Koi-Koi?"));
       var risk = el("div", "hd-risk",
-        "<b>Stop (あがり)</b> banks " + total + " pts now. <b>Koi-Koi (こいこい)</b> keeps playing for a bigger hand" +
-        " (and doubles your final score) — but if the AI stops first, you score 0 this round.");
+        T("<b>Stop (あがり)</b> banks") + " " + total + " " +
+        T("pts now. <b>Koi-Koi (こいこい)</b> keeps playing for a bigger hand (and doubles your final score) — but if the AI stops first, you score 0 this round."));
       var btns = el("div", "hd-btns");
-      var stopB = el("button", "btn btn-accent", "Stop — score " + total);
-      var koiB = el("button", "btn", "Koi-Koi — play on");
+      var stopB = el("button", "btn btn-accent", T("Stop — score") + " " + total);
+      var koiB = el("button", "btn", T("Koi-Koi — play on"));
       stopB.addEventListener("click", function () {
         decideEl.classList.add("hidden");
         state.yakuTotal[0] = total;
@@ -841,7 +897,7 @@
         decideEl.classList.add("hidden");
         state.yakuTotal[0] = total;
         state.koi[0] = true;
-        setMsg('You call <b style="color:var(--hue)">Koi-Koi!</b> — pressing on for more.');
+        setMsg(function () { return T('You call <b style="color:var(--hue)">Koi-Koi!</b> — pressing on for more.'); });
         endTurn(0);
       });
       btns.appendChild(stopB); btns.appendChild(koiB);
@@ -853,11 +909,11 @@
       var lead0 = match.scores[0] >= match.scores[1] ? " lead" : "";
       var lead1 = match.scores[1] > match.scores[0] ? " lead" : "";
       status.innerHTML =
-        '<span class="badge">Round <b>' + match.round + "/" + match.rounds + "</b></span>" +
-        '<span class="badge">Dealer <b>' + (match.dealer === 0 ? "You" : "AI") + "</b></span>" +
-        '<span class="badge">Stock <b>' + (state ? state.stock.length : 0) + "</b></span>" +
-        '<span class="badge' + lead0 + '">You <b>' + match.scores[0] + "</b></span>" +
-        '<span class="badge' + lead1 + '">AI <b>' + match.scores[1] + "</b></span>";
+        '<span class="badge">' + T("Round") + " <b>" + match.round + "/" + match.rounds + "</b></span>" +
+        '<span class="badge">' + T("Dealer") + " <b>" + T(match.dealer === 0 ? "You" : "AI") + "</b></span>" +
+        '<span class="badge">' + T("Stock") + " <b>" + (state ? state.stock.length : 0) + "</b></span>" +
+        '<span class="badge' + lead0 + '">' + T("You") + " <b>" + match.scores[0] + "</b></span>" +
+        '<span class="badge' + lead1 + '">' + T("AI") + " <b>" + match.scores[1] + "</b></span>";
     }
 
     function capturedGroups(pl) {
@@ -871,7 +927,7 @@
       var cap = state.captured[pl];
       groups.forEach(function (g) {
         var box = el("div", "cap-g");
-        box.appendChild(el("div", "cap-h", g[1]));
+        box.appendChild(el("div", "cap-h", T(g[1])));
         var cc = el("div", "cap-cards");
         var any = false;
         for (var i = 0; i < cap.length; i++) {
@@ -891,11 +947,11 @@
       var p = el("div", "yaku-panel");
       var sc = scoreYaku(state.captured[pl]);
       p.appendChild(el("div", null,
-        '<span class="panel-h" style="display:inline;margin:0">' + (pl === 0 ? "Your" : "AI") +
-        ' Yaku</span> &nbsp; <span class="yp-total">' + sc.total + "</span> pts" +
+        '<span class="panel-h" style="display:inline;margin:0">' + T(pl === 0 ? "Your Yaku" : "AI Yaku") +
+        '</span> &nbsp; <span class="yp-total">' + sc.total + "</span> " + T("pts") +
         (state.koi[pl] ? ' <span class="badge" style="color:var(--hue)">こいこい</span>' : "")));
       if (sc.list.length === 0) {
-        p.appendChild(el("div", "yaku-none", "No yaku yet."));
+        p.appendChild(el("div", "yaku-none", T("No yaku yet.")));
       } else {
         var ul = el("ul", "yaku-list");
         var seen = {};
@@ -927,17 +983,17 @@
       // opponent zone
       var opp = el("div", "hana-zone");
       var oppLabel = el("div", "zone-label",
-        '<span class="who">AI 相手</span><span>Hand: ' + state.hands[1].length +
-        (turn === 1 && phase !== "roundOver" && phase !== "matchOver" ? ' · to move' : '') + "</span>");
+        '<span class="who">' + T("AI 相手") + "</span><span>" + T("Hand") + ": " + state.hands[1].length +
+        (turn === 1 && phase !== "roundOver" && phase !== "matchOver" ? " · " + T("to move") : "") + "</span>");
       opp.appendChild(oppLabel);
       var oppCols = el("div", "hana-flexcols");
       var oppHandCol = el("div", "col");
-      oppHandCol.appendChild(el("div", "zone-label", "Hand"));
+      oppHandCol.appendChild(el("div", "zone-label", T("Hand")));
       var oppHandRow = el("div", "hana-row");
       for (var h = 0; h < state.hands[1].length; h++) oppHandRow.appendChild(cardBack());
       oppHandCol.appendChild(oppHandRow);
       var oppCapCol = el("div", "col");
-      oppCapCol.appendChild(el("div", "zone-label", "Captured"));
+      oppCapCol.appendChild(el("div", "zone-label", T("Captured")));
       oppCapCol.appendChild(capturedGroups(1));
       var oppYakuCol = el("div", "col");
       oppYakuCol.appendChild(yakuPanel(1));
@@ -950,7 +1006,7 @@
       // field zone
       var fieldZone = el("div", "hana-zone field");
       fieldZone.appendChild(el("div", "zone-label",
-        '<span class="who">場 Field</span><span>Stock: ' + state.stock.length + " 🎴</span>"));
+        '<span class="who">' + T("場 Field") + "</span><span>" + T("Stock") + ": " + state.stock.length + " 🎴</span>"));
       var frow = el("div", "hana-row");
       var highlights = fieldMatchSet();
       state.field.forEach(function (c) {
@@ -959,29 +1015,29 @@
         if (isMatch) opts.onClick = function () { onFieldClick(c); };
         frow.appendChild(cardTile(c, opts));
       });
-      if (state.field.length === 0) frow.appendChild(el("span", "cap-empty", "field empty"));
+      if (state.field.length === 0) frow.appendChild(el("span", "cap-empty", T("field empty")));
       fieldZone.appendChild(frow);
       board.appendChild(fieldZone);
 
       // your zone
       var you = el("div", "hana-zone");
       you.appendChild(el("div", "zone-label",
-        '<span class="who">あなた You</span><span>' +
-        (turn === 0 && phase === "play" ? "Your move — play a card" :
-          turn === 0 && phase === "chooseFieldPlay" ? "Choose a field card to capture" :
-            turn === 0 && phase === "chooseFieldDraw" ? "Choose a field card for your draw" : "&nbsp;") +
+        '<span class="who">' + T("あなた You") + "</span><span>" +
+        (turn === 0 && phase === "play" ? T("Your move — play a card") :
+          turn === 0 && phase === "chooseFieldPlay" ? T("Choose a field card to capture") :
+            turn === 0 && phase === "chooseFieldDraw" ? T("Choose a field card for your draw") : "&nbsp;") +
         "</span>"));
       var youCols = el("div", "hana-flexcols");
       var youYakuCol = el("div", "col");
       youYakuCol.appendChild(yakuPanel(0));
       var youCapCol = el("div", "col");
-      youCapCol.appendChild(el("div", "zone-label", "Captured"));
+      youCapCol.appendChild(el("div", "zone-label", T("Captured")));
       youCapCol.appendChild(capturedGroups(0));
       youCols.appendChild(youYakuCol);
       youCols.appendChild(youCapCol);
       you.appendChild(youCols);
 
-      you.appendChild(el("div", "zone-label", "Your Hand"));
+      you.appendChild(el("div", "zone-label", T("Your Hand")));
       var yhand = el("div", "hana-row");
       var canPlay = turn === 0 && phase === "play";
       state.hands[0].forEach(function (c, i) {
@@ -993,7 +1049,7 @@
         if (pending && pending.card === c) opts.extra = "sel";
         yhand.appendChild(cardTile(c, opts));
       });
-      if (state.hands[0].length === 0) yhand.appendChild(el("span", "cap-empty", "hand empty"));
+      if (state.hands[0].length === 0) yhand.appendChild(el("span", "cap-empty", T("hand empty")));
       you.appendChild(yhand);
       board.appendChild(you);
 
@@ -1014,6 +1070,19 @@
     });
     rulesBtn.addEventListener("click", function () { rulesEl.classList.toggle("hidden"); });
 
+    /* ---------- language switch ---------- */
+    // Re-label the build-once controls, rebuild the rules panel, repaint the
+    // current commentary line, and re-render the table. The match, the round
+    // and every card in play are untouched.
+    function relocalize() {
+      relabel(root);
+      rulesEl.innerHTML = rulesHTML();
+      paintMsg();
+      render();
+      if (phase === "decision" && state) showDecision(state.pendingDecisionTotal);
+    }
+    window.addEventListener("carino:langchange", relocalize);
+
     // auto-start a first match
     newMatch();
 
@@ -1021,11 +1090,14 @@
     return function destroy() {
       for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
       timers = [];
+      window.removeEventListener("carino:langchange", relocalize);
       if (root.parentNode) root.parentNode.removeChild(root);
     };
   }
 
   function rulesHTML() {
+    // Each line is its own key. The 役 (yaku) list has no entries on purpose —
+    // those are the game's own Japanese terms and stay as they are.
     return [
       '<h4>花札 Koi-Koi — quick rules</h4>',
       'Match flower cards by <b>month</b> to capture them, build <b>yaku</b> (scoring combos), then decide to <b>Stop</b> and bank your points or call <b>Koi-Koi</b> to press your luck for more.',
@@ -1041,7 +1113,7 @@
       '<li>赤短 Akatan (3 red poetry ribbons) 5 · 青短 Aotan (3 blue ribbons) 5 · 短 Tan (5+ ribbons) 1 +1 each extra — these stack</li>',
       '<li>カス Kasu (10+ chaff) 1 +1 each extra · 月見酒 Tsukimi-zake (moon+sake) 5 · 花見酒 Hanami-zake (cherry+sake) 5</li></ul>',
       'The deck is 48 cards (12 months × 4). Deal is 8 hand / 8 hand / 8 field, leaving 24 in the stock. If 3 field cards share your card’s month you take all three.'
-    ].join("");
+    ].map(function (line) { return T(line); }).join("");
   }
 
   /* =================================================================

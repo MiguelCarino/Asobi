@@ -1224,6 +1224,30 @@ var Sound = (function () {
   var EVENT_DEFS = [['wildlife','🦖 Wildlife'],['stampede','🦏 Stampede'],['meteor','☄️ Meteors'],['merc','☠ Mercs'],['carrier','🛸 Merc carrier'],['pizza','🍕 Pizza'],['pirate','🚢 Pirate'],['alien','👾 Alien'],['clown','🤡 Clown']];
   var LS_KEY = 'asobi.pentarch';
 
+  /* ---------- i18n ----------
+     i18n.js is deferred, so window.t does not exist yet when this file runs;
+     resolve it lazily on every call. Faction names, terrain names and the
+     seed are game data and stay as they are. The static shell (TEMPLATE) is
+     marked up with data-gt / data-gt-title and translated in one pass by
+     relabel(); the chip bars, effect bar, vehicle bar and HUD are rebuilt by
+     their own builders, so those just call T() inline.
+     data-gt rather than data-i18n on purpose — the shell's applyStaticI18n()
+     walks [data-i18n] document-wide and would latch onto our translated text
+     as the key, making the switch back to English lossy. */
+  var T = function (s) { return window.t ? window.t(s) : s; };
+  function relabel(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-gt]'), function (n) {
+      n.textContent = T(n.dataset.gt);
+    });
+    Array.prototype.forEach.call(root.querySelectorAll('[data-gt-title]'), function (n) {
+      n.title = T(n.dataset.gtTitle);
+    });
+  }
+
+  var HELP_HTML = 'Capture a flag\'s <b>generator</b> (the separate circle) to own the flag, then hold the flag to score. ' +
+    'Infantry reinforce automatically; time vehicles from the reserve. Spend battle points on effects. ' +
+    'Pick a faction to command or 👁 watch all-AI. Same seed + same settings = the same battle.';
+
   var CSS = [
     '.pt-wrap { display:flex; flex-direction:column; height:calc(100vh - var(--nav-h) - 50px); min-height:480px; font-size:14px; }',
     '.pt-top { display:flex; align-items:center; gap:12px; padding:8px 16px; border-bottom:1px solid var(--border); background:var(--bg-header); flex:0 0 auto; flex-wrap:wrap; }',
@@ -1274,30 +1298,30 @@ var Sound = (function () {
     '<div class="pt-wrap">',
     '  <header class="pt-top">',
     '    <div class="pt-scores"></div>',
-    '    <span class="pt-clockchip pt-tod" title="time of day">☀️ Day</span>',
+    '    <span class="pt-clockchip pt-tod" title="time of day" data-gt-title="time of day">☀️ Day</span>',
     '    <span class="pt-clockchip pt-clock">1:00</span>',
     '    <span class="pt-terrain">—</span>',
     '  </header>',
     '  <div class="pt-layout">',
     '    <div class="pt-arena"><canvas width="920" height="520"></canvas><div class="pt-alert"></div><div class="pt-overlay"></div></div>',
     '    <div class="pt-side">',
-    '      <div class="pt-card"><div class="pt-lbl">Factions</div><div class="pt-chips pt-facChips"></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl">Battle length</div><div class="pt-chips pt-durChips"></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl">Seed (deterministic)</div><div class="pt-seedrow"><input class="pt-seed" inputmode="numeric" spellcheck="false" title="same seed + same settings = same battle"><button class="pt-chip" data-act="reseed" title="new random seed">🎲</button></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl">Battle effects · <span class="pt-pts">0</span> pts</div><div class="pt-effbar"></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl">Vehicles <span class="pt-vmode" data-act="vmode">limited ⇄</span></div><div class="pt-vehbar"></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl">Roster (tap to disable)</div><div class="pt-chips pt-rosterChips"></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl">Map events</div><div class="pt-chips pt-eventChips"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl" data-gt="Factions">Factions</div><div class="pt-chips pt-facChips"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl" data-gt="Battle length">Battle length</div><div class="pt-chips pt-durChips"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl" data-gt="Seed (deterministic)">Seed (deterministic)</div><div class="pt-seedrow"><input class="pt-seed" inputmode="numeric" spellcheck="false" title="same seed + same settings = same battle" data-gt-title="same seed + same settings = same battle"><button class="pt-chip" data-act="reseed" title="new random seed" data-gt-title="new random seed">🎲</button></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl"><span data-gt="Battle effects">Battle effects</span> · <span class="pt-pts">0</span> pts</div><div class="pt-effbar"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl"><span data-gt="Vehicles">Vehicles</span> <span class="pt-vmode" data-act="vmode">limited ⇄</span></div><div class="pt-vehbar"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl" data-gt="Roster (tap to disable)">Roster (tap to disable)</div><div class="pt-chips pt-rosterChips"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl" data-gt="Map events">Map events</div><div class="pt-chips pt-eventChips"></div></div>',
     '      <div class="pt-card">',
     '        <div class="pt-chips">',
-    '          <span class="pt-chip pt-tog pt-boost" data-act="boosts">⚡ Boosts</span>',
-    '          <span class="pt-chip pt-tog pt-shield" data-act="shields">🛡️ Shields</span>',
+    '          <span class="pt-chip pt-tog pt-boost" data-act="boosts" data-gt="⚡ Boosts">⚡ Boosts</span>',
+    '          <span class="pt-chip pt-tog pt-shield" data-act="shields" data-gt="🛡️ Shields">🛡️ Shields</span>',
     '          <span class="pt-chip pt-day" data-act="daymode">🌗 Shift</span>',
-    '          <span class="pt-chip pt-sound off" data-act="sound">🔊 Sound</span>',
+    '          <span class="pt-chip pt-sound off" data-act="sound" data-gt="🔊 Sound">🔊 Sound</span>',
     '        </div>',
-    '        <button class="pt-btn" data-act="restart">Restart ⟳</button>',
+    '        <button class="pt-btn" data-act="restart" data-gt="Restart ⟳">Restart ⟳</button>',
     '      </div>',
-    '      <div class="pt-card pt-help">Capture a flag&#39;s <b>generator</b> (the separate circle) to own the flag, then hold the flag to score. Infantry reinforce automatically; time vehicles from the reserve. Spend battle points on effects. Pick a faction to command or 👁 watch all-AI. Same seed + same settings = the same battle.</div>',
+    '      <div class="pt-card pt-help"></div>',
     '    </div>',
     '  </div>',
     '</div>',
@@ -1405,13 +1429,13 @@ var Sound = (function () {
         return '<span class="pt-chip ' + (cfg.duration === val ? 'on' : '') + '" data-act="dur" data-val="' + d[1] + '">' + d[0] + '</span>'; }).join('');
       $('.pt-rosterChips').innerHTML = ROSTER.map(function (k) {
         return '<span class="pt-chip pt-tog ' + (cfg.disabled.has(k) ? 'off' : '') + '" data-act="unit" data-val="' + k + '">' +
-          Battle.UNITS[k].art + ' ' + Battle.UNITS[k].name + '</span>'; }).join('');
-      $('.pt-vmode').textContent = (cfg.vehInfinite ? 'infinite' : 'limited') + ' ⇄';
+          Battle.UNITS[k].art + ' ' + T(Battle.UNITS[k].name) + '</span>'; }).join('');
+      $('.pt-vmode').textContent = T(cfg.vehInfinite ? 'infinite' : 'limited') + ' ⇄';
       $('.pt-boost').classList.toggle('off', !cfg.boosts);
       $('.pt-shield').classList.toggle('off', !cfg.spawnShields);
-      $('.pt-day').textContent = DAY_LABEL[cfg.dayMode];
+      $('.pt-day').textContent = T(DAY_LABEL[cfg.dayMode]);
       $('.pt-eventChips').innerHTML = EVENT_DEFS.map(function (d) {
-        return '<span class="pt-chip pt-tog ' + (cfg.events[d[0]] ? '' : 'off') + '" data-act="event" data-val="' + d[0] + '">' + d[1] + '</span>'; }).join('');
+        return '<span class="pt-chip pt-tog ' + (cfg.events[d[0]] ? '' : 'off') + '" data-act="event" data-val="' + d[0] + '">' + T(d[1]) + '</span>'; }).join('');
     }
 
     // build the clickable score bar once; hud() only updates the numbers so clicks aren't eaten
@@ -1419,10 +1443,10 @@ var Sound = (function () {
       $('.pt-scores').innerHTML = sim.sides.map(function (f) {
         var on = cfg.controlled === f;
         return '<span class="s" data-act="ctl" data-val="' + f + '" style="color:' + sim.color[f] + ';' +
-          (on ? 'text-decoration:underline;text-underline-offset:3px' : 'opacity:.8') + '" title="command this faction">' +
+          (on ? 'text-decoration:underline;text-underline-offset:3px' : 'opacity:.8') + '" title="' + T('command this faction') + '">' +
           (on ? '▸ ' : '') + sim.name[f] + ' <span data-sc="' + f + '">0</span></span>';
       }).join('') + '<span class="s" data-act="ctl" data-val="null" style="color:var(--text-sec);' +
-        (cfg.controlled === null ? 'text-decoration:underline;text-underline-offset:3px' : 'opacity:.7') + '" title="spectate">👁 Watch</span>';
+        (cfg.controlled === null ? 'text-decoration:underline;text-underline-offset:3px' : 'opacity:.7') + '" title="' + T('spectate') + '">' + T('👁 Watch') + '</span>';
     }
 
     function buildEffects(force) {   // rebuild ONLY when affordability/arm/control changes (so clicks aren't eaten)
@@ -1431,10 +1455,10 @@ var Sound = (function () {
       var sig = EFFECTS.map(function (d) { return pts >= Battle.ABILITIES[d[0]] ? '1' : '0'; }).join('') + '|' + armedAb + '|' + me;
       if (!force && sig === effSig) return;
       effSig = sig;
-      $('.pt-effbar').innerHTML = !me ? '<div class="pt-eff dis">👁 Watching — no effects</div>' : EFFECTS.map(function (d) {
+      $('.pt-effbar').innerHTML = !me ? '<div class="pt-eff dis">' + T('👁 Watching — no effects') + '</div>' : EFFECTS.map(function (d) {
         var kind = d[0], cost = Battle.ABILITIES[kind], usable = pts >= cost;
         return '<div class="pt-eff ' + (usable ? '' : 'dis') + ' ' + (armedAb === kind ? 'on' : '') + '" data-act="eff" data-val="' + kind + '">' +
-          d[1] + '<span class="c">' + cost + '</span></div>';
+          T(d[1]) + '<span class="c">' + cost + '</span></div>';
       }).join('');
     }
     function effClick(kind) {
@@ -1452,13 +1476,13 @@ var Sound = (function () {
     }
     function buildBar() {
       var st = (sim && me) ? Battle.vehStatus(sim, me) : [];
-      $('.pt-vehbar').innerHTML = !me ? '<div class="pt-vcard dis"><span class="st" style="padding:4px">👁 Watching</span></div>'
+      $('.pt-vehbar').innerHTML = !me ? '<div class="pt-vcard dis"><span class="st" style="padding:4px">' + T('👁 Watching') + '</span></div>'
         : st.length ? st.map(function (v) {
             var d = Battle.UNITS[v.key], right = v.inf ? (v.ready ? '∞' : '⏳') : '×' + v.count, usable = v.inf ? v.ready : v.count > 0;
             return '<div class="pt-vcard ' + (usable ? '' : 'dis') + '" data-act="veh" data-val="' + v.key + '">' +
-              '<span class="em">' + d.art + '</span><span class="meta"><div class="nm">' + d.name + '</div>' +
+              '<span class="em">' + d.art + '</span><span class="meta"><div class="nm">' + T(d.name) + '</div>' +
               '<div class="st">HP ' + d.hp + ' · DMG ' + d.dmg + '</div></span><span class="cnt">' + right + '</span></div>';
-          }).join('') : '<div class="pt-vcard dis"><span class="st" style="padding:4px">No vehicles enabled</span></div>';
+          }).join('') : '<div class="pt-vcard dis"><span class="st" style="padding:4px">' + T('No vehicles enabled') + '</span></div>';
     }
 
     function hud() {
@@ -1468,12 +1492,16 @@ var Sound = (function () {
         : '∞ ' + Math.floor(sim.t / 60) + ':' + String(Math.floor(sim.t % 60)).padStart(2, '0');
       $('.pt-terrain').textContent = sim.terrain.name;
       var night = sim.dayMode === 'night' || (sim.dayMode === 'shift' && Math.floor(sim.t / 60) % 2 === 1);
-      $('.pt-tod').textContent = night ? '🌙 Night' : '☀️ Day';
+      $('.pt-tod').textContent = T(night ? '🌙 Night' : '☀️ Day');
       if (sim.over && !wasOver) {   // set the overlay ONCE so the button isn't rebuilt under the cursor
-        wasOver = true; var ov = $('.pt-overlay'); ov.style.display = 'flex'; var w = sim.winner;
-        ov.innerHTML = '<div style="text-align:center"><h1 style="color:' + (w ? sim.color[w] : '#fff') + '">' +
-          (w ? sim.name[w] + ' wins!' : 'Stalemate') + '</h1><button data-act="restart">Fight again</button></div>';
+        wasOver = true; paintOverlay();
       }
+    }
+    // Faction names are game data; only the verdict wording is translated.
+    function paintOverlay() {
+      var ov = $('.pt-overlay'); ov.style.display = 'flex'; var w = sim.winner;
+      ov.innerHTML = '<div style="text-align:center"><h1 style="color:' + (w ? sim.color[w] : '#fff') + '">' +
+        (w ? sim.name[w] + ' ' + T('wins!') : T('Stalemate')) + '</h1><button data-act="restart">' + T('Fight again') + '</button></div>';
     }
     function showAlert() {   // red-alert banner while a map event is active
       var el = $('.pt-alert'), on = sim.alert && sim.t < sim.alert.until;
@@ -1536,7 +1564,22 @@ var Sound = (function () {
       raf = requestAnimationFrame(loop);
     }
 
+    /* ---------- language switch ---------- */
+    // Re-label the static shell, then re-run the builders. The sim, the seed
+    // and the battle in progress are untouched — buildEffects/buildBar are
+    // forced past their change-signature caches so the new wording lands.
+    function relocalize() {
+      relabel(root);
+      $('.pt-help').innerHTML = T(HELP_HTML);
+      buildControls();
+      if (sim) { buildScores(); buildEffects(true); vehSig = ''; buildBar(); }
+      if (sim && sim.over) paintOverlay();
+    }
+    window.addEventListener('carino:langchange', relocalize);
+
     load();
+    relabel(root);
+    $('.pt-help').innerHTML = T(HELP_HTML);
     $('.pt-sound').classList.toggle('off', Sound.isMuted());
     restart();
     raf = requestAnimationFrame(loop);
@@ -1545,6 +1588,7 @@ var Sound = (function () {
       running = false;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', fit);
+      window.removeEventListener('carino:langchange', relocalize);
       Sound.stopMusic();
       Sound.setMuted(true);   // next mount starts silent again (autoplay-safe)
     };

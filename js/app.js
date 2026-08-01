@@ -10,6 +10,9 @@
   "use strict";
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  // i18n.js is deferred, so it has run (and resolved the locale) before our
+  // DOMContentLoaded handler; still guard so the shell works without it.
+  const T = (s) => (window.t ? window.t(s) : s);
 
   const gameList = () => Object.entries(window.GAMES || {});
   let active = null;
@@ -30,8 +33,8 @@
         <div class="slice-inner">
           <span class="slice-kanji">${g.jp || ""}</span>
           <h2 class="slice-title">${g.title}</h2>
-          <p class="slice-blurb">${g.blurb || ""}</p>
-          <span class="slice-tag">${g.tag || ""}</span>
+          <p class="slice-blurb">${T(g.blurb || "")}</p>
+          <span class="slice-tag">${T(g.tag || "")}</span>
         </div>`;
       slice.addEventListener("click", () => { location.hash = "#" + id; });
       menu.appendChild(slice);
@@ -63,9 +66,26 @@
     document.body.classList.remove("state-playing");
     $$(".slice").forEach((s) => s.classList.remove("active"));
     $("#gameHost").innerHTML = "";
-    const greet = $("#greeting"); if (greet) greet.textContent = "Choose a game.";
+    const greet = $("#greeting"); if (greet) greet.textContent = T("Choose a game.");
     window.scrollTo(0, 0);
   }
+
+  /* ---------- language switch (called by i18n.js after it re-applies) ---- */
+  function relocalize() {
+    $$(".slice").forEach((s) => {
+      const g = (window.GAMES || {})[s.dataset.id];
+      if (!g) return;
+      const blurb = s.querySelector(".slice-blurb");
+      if (blurb) blurb.textContent = T(g.blurb || "");
+      const tag = s.querySelector(".slice-tag");
+      if (tag) tag.textContent = T(g.tag || "");
+    });
+    const empty = $("#sliceMenu .menu-empty");
+    if (empty) empty.textContent = T("No games loaded.");
+    const greet = $("#greeting");
+    if (greet && !active) greet.textContent = T("Choose a game.");
+  }
+  window.asobiRelocalize = relocalize;
 
   function route() {
     const id = location.hash.replace(/^#/, "");
@@ -79,7 +99,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     if (!window.GAMES || !gameList().length) {
-      $("#sliceMenu").innerHTML = '<p style="margin:auto;color:#888">No games loaded.</p>';
+      $("#sliceMenu").innerHTML = `<p class="menu-empty" style="margin:auto;color:#888">${T("No games loaded.")}</p>`;
       return;
     }
     buildSlices();
