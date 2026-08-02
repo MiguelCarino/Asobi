@@ -8,6 +8,10 @@
 
 const I18N = {
     es: {
+        'Late shift.': 'Turno nocturno.',
+        'Good morning.': 'Buenos días.',
+        'Good afternoon.': 'Buenas tardes.',
+        'Good evening.': 'Buenas noches.',
         // ---- shell / index.html ----
         'Carino workshop · games in the browser': 'Taller Carino · juegos en el navegador',
         'Play': 'Juega a',
@@ -188,6 +192,10 @@ const I18N = {
         'spectate': 'observar',
     },
     'pt-BR': {
+        'Late shift.': 'Turno da noite.',
+        'Good morning.': 'Bom dia.',
+        'Good afternoon.': 'Boa tarde.',
+        'Good evening.': 'Boa noite.',
         // ---- shell / index.html ----
         'Carino workshop · games in the browser': 'Oficina Carino · jogos no navegador',
         'Play': 'Jogue',
@@ -368,6 +376,10 @@ const I18N = {
         'spectate': 'assistir',
     },
     ru: {
+        'Late shift.': 'Ночная смена.',
+        'Good morning.': 'Доброе утро.',
+        'Good afternoon.': 'Добрый день.',
+        'Good evening.': 'Добрый вечер.',
         // ---- shell / index.html ----
         'Carino workshop · games in the browser': 'Мастерская Carino · игры в браузере',
         'Play': 'Играйте в',
@@ -548,6 +560,10 @@ const I18N = {
         'spectate': 'наблюдать',
     },
     ja: {
+        'Late shift.': '夜勤お疲れさま。',
+        'Good morning.': 'おはようございます。',
+        'Good afternoon.': 'こんにちは。',
+        'Good evening.': 'こんばんは。',
         // ---- shell / index.html ----
         'Carino workshop · games in the browser': 'Carino工房 · ブラウザゲーム',
         'Play': 'ブラウザで遊べる',
