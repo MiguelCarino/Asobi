@@ -61,6 +61,14 @@ body::before {
 }
 .header-left  { display: flex; align-items: center; gap: 20px; min-width: 0; }
 .header-right { display: flex; align-items: center; gap: 12px; }
+/* Right-cluster slot order, fleet convention, read right-to-left:
+   GitHub + LinkedIn last, language beside them, then status, then
+   this app's own controls furthest from the edge. Set with `order`
+   because carino-lang.js injects itself asynchronously. */
+.header-right > * { order: 1; }
+.header-right > .status-toggle { order: 2; }
+.header-right > #cnLangBtn { order: 3; }
+.header-right > .social-row { order: 4; }
 .cn-brand { display: flex; align-items: center; flex-shrink: 0; }
 .brand-name {
   font-family: var(--display); font-size: 1.55rem; font-weight: 900; line-height: 1; white-space: nowrap;
