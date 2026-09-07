@@ -1,14 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fef08a"/>
-      <stop offset="0.5" stop-color="#eab308"/>
-      <stop offset="1" stop-color="#b45309"/>
-    </linearGradient>
-  </defs>
-  <rect x="3" y="3" width="58" height="58" rx="12" fill="#0a0a0a" stroke="url(#g)" stroke-width="2"/>
-  <!-- shogi koma (pentagon) -->
-  <path d="M32 14 L45 20 L47 50 L17 50 L19 20 Z" fill="none" stroke="url(#g)" stroke-width="2" stroke-linejoin="round" opacity="0.9"/>
-  <text x="32" y="37" font-family="'Shippori Mincho',serif" font-size="20" font-weight="800"
-        fill="url(#g)" text-anchor="middle" dominant-baseline="central">遊</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" role="img" aria-label="Carino Asobi"><path d="M 56.61 32.37 A 25.38 25.38 0 1 0 56.61 67.63" fill="none" stroke="#eab308" stroke-width="11.94" stroke-linecap="butt"/><path d="M 77.47 30.59 H 81.35 V 34.47 H 77.47 Z M 81.35 30.59 H 85.24 V 34.47 H 81.35 Z M 77.47 34.47 H 81.35 V 38.35 H 77.47 Z M 81.35 34.47 H 85.24 V 38.35 H 81.35 Z M 73.59 38.35 H 77.47 V 42.24 H 73.59 Z M 85.24 38.35 H 89.12 V 42.24 H 85.24 Z M 73.59 42.24 H 77.47 V 46.12 H 73.59 Z M 85.24 42.24 H 89.12 V 46.12 H 85.24 Z M 69.71 46.12 H 73.59 V 50.00 H 69.71 Z M 73.59 46.12 H 77.47 V 50.00 H 73.59 Z M 85.24 46.12 H 89.12 V 50.00 H 85.24 Z M 89.12 46.12 H 93.00 V 50.00 H 89.12 Z M 69.71 50.00 H 73.59 V 53.88 H 69.71 Z M 73.59 50.00 H 77.47 V 53.88 H 73.59 Z M 77.47 50.00 H 81.35 V 53.88 H 77.47 Z M 81.35 50.00 H 85.24 V 53.88 H 81.35 Z M 85.24 50.00 H 89.12 V 53.88 H 85.24 Z M 89.12 50.00 H 93.00 V 53.88 H 89.12 Z M 69.71 53.88 H 73.59 V 57.76 H 69.71 Z M 73.59 53.88 H 77.47 V 57.76 H 73.59 Z M 77.47 53.88 H 81.35 V 57.76 H 77.47 Z M 81.35 53.88 H 85.24 V 57.76 H 81.35 Z M 85.24 53.88 H 89.12 V 57.76 H 85.24 Z M 89.12 53.88 H 93.00 V 57.76 H 89.12 Z M 69.71 57.76 H 73.59 V 61.65 H 69.71 Z M 73.59 57.76 H 77.47 V 61.65 H 73.59 Z M 85.24 57.76 H 89.12 V 61.65 H 85.24 Z M 89.12 57.76 H 93.00 V 61.65 H 89.12 Z M 69.71 61.65 H 73.59 V 65.53 H 69.71 Z M 73.59 61.65 H 77.47 V 65.53 H 73.59 Z M 85.24 61.65 H 89.12 V 65.53 H 85.24 Z M 89.12 61.65 H 93.00 V 65.53 H 89.12 Z M 69.71 65.53 H 73.59 V 69.41 H 69.71 Z M 73.59 65.53 H 77.47 V 69.41 H 73.59 Z M 85.24 65.53 H 89.12 V 69.41 H 85.24 Z M 89.12 65.53 H 93.00 V 69.41 H 89.12 Z" fill="#eab308"/></svg>
