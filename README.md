@@ -1,5 +1,7 @@
 # Carino Asobi （遊び）
 
+**[Play it →](https://asobi.carino.systems/)** — runs in your browser, nothing to install, no account.
+
 Two traditional Japanese games in the browser — no install, no server, everything runs
 client-side. Pick a game from the **slice-menu** chooser; it collapses to a tab bar once
 you're in one.
