@@ -70,7 +70,6 @@ body.state-module .slice-menu .slice.active .s-text { color: var(--hue, var(--ac
 .as-state { padding: 32px 16px; max-width: 640px; margin: 0 auto; }
 
 /* ===================== Help overlay ===================== */
-.as-mh { flex: 1; }
 .as-help { max-width: 600px; }
 .as-rules { font-size: var(--fs-sm); color: var(--text-sec); line-height: 1.6; }
 .as-rules h4 { font-family: var(--jp); color: var(--accent); margin: 12px 0 4px; font-size: var(--fs-sec); }
@@ -78,16 +77,10 @@ body.state-module .slice-menu .slice.active .s-text { color: var(--hue, var(--ac
 .as-rules code { font-family: var(--mono); color: var(--accent); }
 .as-rules ul { margin: 4px 0 4px 18px; padding: 0; }
 .as-rules b { color: var(--text); }
-.as-keys { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; margin: 16px 0 0;
-           padding-top: 14px; border-top: 1px solid var(--border);
-           font-family: var(--mono); font-size: var(--fs-btn); color: var(--text-muted); }
-.as-keys dt { white-space: nowrap; }
-.as-keys dd { margin: 0; text-transform: uppercase; letter-spacing: .06em; }
-/* the touch section shows only where there is no keyboard */
-.as-touch { display: none; margin: 0 0 14px; }
+/* the key list (.kbd-grid) sits under the rules, past a rule line */
+#helpKeys { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.as-touch { margin: 0 0 14px; }
 .as-touch p { margin: 4px 0 0; }
-@media (pointer: coarse) { .as-touch { display: block; } }
-#pauseBtn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: var(--accent-faint); }
 
 /* ===================== Helpers for game modules ===================== */
 /* Buttons are Branding's .btn / .btn-primary and segmented choices are
