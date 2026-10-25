@@ -444,8 +444,8 @@
     ".hana-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:14px;}",
     ".hana-top .grow{flex:1 1 auto;}",
     ".hana-status{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}",
-    ".hana-status .badge{border-color:var(--border);}",
-    ".hana-status .badge b{color:var(--accent);}",
+    ".hana-status .as-badge{border-color:var(--border);}",
+    ".hana-status .as-badge b{color:var(--accent);}",
     ".hana-status .lead{color:var(--hue);}",
     ".hana-msg{font-family:var(--jp);font-size:.95rem;color:var(--text-sec);min-height:1.4em;margin:6px 2px 14px;border-left:3px solid var(--hue);padding-left:10px;}",
     ".hana-board{display:flex;flex-direction:column;gap:14px;}",
@@ -499,16 +499,13 @@
     ".hana-decide .hd-q{font-family:var(--jp);font-size:1rem;margin-bottom:4px;color:var(--text);}",
     ".hana-decide .hd-risk{font-size:.8rem;color:var(--text-sec);margin-bottom:12px;}",
     ".hana-decide .hd-btns{display:flex;gap:10px;flex-wrap:wrap;}",
-    /* rules */
-    ".hana-rules{font-size:.82rem;color:var(--text-sec);line-height:1.6;}",
-    ".hana-rules h4{font-family:var(--jp);color:var(--accent);margin:10px 0 4px;font-size:.9rem;}",
-    ".hana-rules code{font-family:var(--mono);color:var(--accent);}",
-    ".hana-rules ul{margin:4px 0 4px 18px;}",
     ".hidden{display:none !important;}",
     ".thinking{display:inline-flex;gap:3px;align-items:center;color:var(--hue);font-family:var(--jp);}",
     ".thinking i{width:5px;height:5px;border-radius:50%;background:var(--hue);display:inline-block;animation:hanaBlink 1s infinite;}",
     ".thinking i:nth-child(2){animation-delay:.2s;} .thinking i:nth-child(3){animation-delay:.4s;}",
-    "@keyframes hanaBlink{0%,100%{opacity:.3;}50%{opacity:1;}}"
+    "@keyframes hanaBlink{0%,100%{opacity:.3;}50%{opacity:1;}}",
+    /* reduced motion, read live by the browser: no pop, no blinking dots */
+    "@media (prefers-reduced-motion: reduce){.hana-card,.hana-card.just,.yaku-list li.new{animation:none;transition:none;}.thinking i{animation:none;opacity:.8;}}"
   ].join("\n");
 
   function injectCSS() {
@@ -600,18 +597,18 @@
 
     // persistent chrome
     var top = el("div", "hana-top");
-    var newBtn = gt(el("button", "btn btn-accent"), "New Match");
-    var roundsSeg = el("div", "seg");
+    var newBtn = gt(el("button", "btn btn-primary"), "New Match");
+    var roundsSeg = el("div", "as-seg");
     [3, 6, 12].forEach(function (n) {
       // The count is data, so only the word "rounds" carries a key.
-      var b = el("button", n === 6 ? "active" : "");
+      var b = el("button", "toggle-btn" + (n === 6 ? " active" : ""));
       b.dataset.n = n;
       gt(b, "rounds", n + " ");
       roundsSeg.appendChild(b);
     });
-    var diffSeg = el("div", "seg");
+    var diffSeg = el("div", "as-seg");
     ["Normal", "Hard"].forEach(function (d, i) {
-      var b = el("button", i === 0 ? "active" : "");
+      var b = el("button", "toggle-btn" + (i === 0 ? " active" : ""));
       b.dataset.d = d.toLowerCase();
       gt(b, d);
       diffSeg.appendChild(b);
@@ -631,10 +628,6 @@
 
     var decideEl = el("div", "hana-decide hidden");
     root.appendChild(decideEl);
-
-    var rulesEl = el("div", "hana-zone hana-rules hidden");
-    rulesEl.innerHTML = rulesHTML();
-    root.appendChild(rulesEl);
 
     var board = el("div", "hana-board");
     root.appendChild(board);
@@ -886,7 +879,7 @@
         T("<b>Stop (あがり)</b> banks") + " " + total + " " +
         T("pts now. <b>Koi-Koi (こいこい)</b> keeps playing for a bigger hand (and doubles your final score) — but if the AI stops first, you score 0 this round."));
       var btns = el("div", "hd-btns");
-      var stopB = el("button", "btn btn-accent", T("Stop — score") + " " + total);
+      var stopB = el("button", "btn btn-primary", T("Stop — score") + " " + total);
       var koiB = el("button", "btn", T("Koi-Koi — play on"));
       stopB.addEventListener("click", function () {
         decideEl.classList.add("hidden");
@@ -909,11 +902,11 @@
       var lead0 = match.scores[0] >= match.scores[1] ? " lead" : "";
       var lead1 = match.scores[1] > match.scores[0] ? " lead" : "";
       status.innerHTML =
-        '<span class="badge">' + T("Round") + " <b>" + match.round + "/" + match.rounds + "</b></span>" +
-        '<span class="badge">' + T("Dealer") + " <b>" + T(match.dealer === 0 ? "You" : "AI") + "</b></span>" +
-        '<span class="badge">' + T("Stock") + " <b>" + (state ? state.stock.length : 0) + "</b></span>" +
-        '<span class="badge' + lead0 + '">' + T("You") + " <b>" + match.scores[0] + "</b></span>" +
-        '<span class="badge' + lead1 + '">' + T("AI") + " <b>" + match.scores[1] + "</b></span>";
+        '<span class="as-badge">' + T("Round") + " <b>" + match.round + "/" + match.rounds + "</b></span>" +
+        '<span class="as-badge">' + T("Dealer") + " <b>" + T(match.dealer === 0 ? "You" : "AI") + "</b></span>" +
+        '<span class="as-badge">' + T("Stock") + " <b>" + (state ? state.stock.length : 0) + "</b></span>" +
+        '<span class="as-badge' + lead0 + '">' + T("You") + " <b>" + match.scores[0] + "</b></span>" +
+        '<span class="as-badge' + lead1 + '">' + T("AI") + " <b>" + match.scores[1] + "</b></span>";
     }
 
     function capturedGroups(pl) {
@@ -949,7 +942,7 @@
       p.appendChild(el("div", null,
         '<span class="panel-h" style="display:inline;margin:0">' + T(pl === 0 ? "Your Yaku" : "AI Yaku") +
         '</span> &nbsp; <span class="yp-total">' + sc.total + "</span> " + T("pts") +
-        (state.koi[pl] ? ' <span class="badge" style="color:var(--hue)">こいこい</span>' : "")));
+        (state.koi[pl] ? ' <span class="as-badge" style="color:var(--hue)">こいこい</span>' : "")));
       if (sc.list.length === 0) {
         p.appendChild(el("div", "yaku-none", T("No yaku yet.")));
       } else {
@@ -1068,7 +1061,8 @@
       match.difficulty = b.dataset.d;
       Array.prototype.forEach.call(diffSeg.children, function (x) { x.classList.toggle("active", x === b); });
     });
-    rulesBtn.addEventListener("click", function () { rulesEl.classList.toggle("hidden"); });
+    // The rules live in the shell's help screen (Branding .modal), with the keys.
+    rulesBtn.addEventListener("click", function () { window.dispatchEvent(new CustomEvent("asobi:help")); });
 
     /* ---------- language switch ---------- */
     // Re-label the build-once controls, rebuild the rules panel, repaint the
@@ -1076,7 +1070,6 @@
     // and every card in play are untouched.
     function relocalize() {
       relabel(root);
-      rulesEl.innerHTML = rulesHTML();
       paintMsg();
       render();
       if (phase === "decision" && state) showDecision(state.pendingDecisionTotal);
@@ -1126,7 +1119,8 @@
       title: "Hanafuda", jp: "花札",
       blurb: "Koi-Koi: match flower cards by month, build yaku, press your luck.",
       tag: "48 cards · Koi-Koi · vs AI", hue: "#d1442f", glow: "rgba(209,68,47,0.20)",
-      init: init
+      init: init,
+      help: rulesHTML
     };
   }
 

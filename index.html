@@ -28,58 +28,76 @@
   <!-- /carino:head -->
   <link rel="icon" href="logo.webp" type="image/webp">
   <link rel="stylesheet" href="fonts/carino-fonts.css">
+  <link rel="stylesheet" href="carino-ui.css">
   <link href="css/styles.css" rel="stylesheet">
 </head>
 <body class="state-overview">
 
-  <header class="top-header">
-    <div class="header-left">
-      <span class="cn-brand">
-        <a class="brand-name" href="https://carino.systems/" title="Carino Systems — back to hub">Carino</a>
-        <a class="app-tag" href="./" title="遊び — reload">遊び</a>
-      </span>
-      <div class="header-clock" aria-hidden="true">
-        <span class="clock-time" id="clockLocal">00:00:00</span>
-        <span class="clock-tz" id="tzName">local</span>
-        <span class="brand-greeting" id="greeting">Choose a game.</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="social-row">
-        <a href="https://carino.systems/legal.html" class="icon-btn" id="cnLegal" title="Legal notice &amp; privacy" aria-label="Legal notice &amp; privacy">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        </a>
-        <a href="https://github.com/MiguelCarino/Asobi" target="_blank" rel="noopener" class="icon-btn" title="Asobi on GitHub" aria-label="GitHub">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-        </a>
-        <a href="https://www.linkedin.com/in/miguelcarino94/" target="_blank" rel="noopener" class="icon-btn" title="LinkedIn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-        </a>
-      </div>
+  <!-- Game controls, carried into the shared navbar (carino-navbar.js).
+       Shown only while a game is open; Help is the one kept on phones. -->
+  <div class="as-actions" data-carino-actions>
+    <a class="cs-btn" href="#" id="toChooser" hidden>← <span data-i18n>Games</span></a>
+    <button type="button" class="cs-btn" id="pauseBtn" aria-pressed="false" hidden>Pause</button>
+    <button type="button" class="cs-btn" id="helpBtn" data-priority="1" aria-haspopup="dialog" aria-controls="helpScrim" hidden>? <span data-i18n>Help</span></button>
+  </div>
+
+  <!-- The chooser is a suite page: the gold-C hero, then one slice per game.
+       Choosing a game (#shogi, #hanafuda, #pentarch) hides the hero and the
+       footer, collapses the slices into a bar and gives the game the stage. -->
+  <header class="landing-hero">
+    <div class="lh-wrap">
+      <div class="lh-mark" aria-hidden="true"><img class="mark" src="logo.svg" alt="" width="100" height="100"></div>
+      <h1><span data-i18n>Shogi, Hanafuda and Pentarch.</span><br><span class="gold" data-i18n>Play them in your browser.</span></h1>
+      <p class="lh-lede"><strong>Carino Asobi</strong> <span data-i18n>has Shogi with any mix of human and AI players, Hanafuda Koi-Koi against the computer, and the Pentarch auto-battler.</span></p>
+      <ul class="lh-situations">
+        <li data-i18n>No install and no account. Pick a game below; each one has its own link.</li>
+        <li data-i18n>Every game has a help screen: press ? or the Help button.</li>
+      </ul>
+      <p class="as-privacy"><span class="privacy-line" data-i18n>Runs in your browser. Nothing you add here is uploaded.</span></p>
     </div>
   </header>
 
-  <div class="overview-head">
-    <span class="kicker" data-i18n>Carino workshop · games in the browser</span>
-    <h1 class="overview-title"><span data-i18n>Play</span> <em>将棋</em>, <em>花札</em> <span data-i18n>and</span> <em>戦</em> <span data-i18n>in your browser.</span></h1>
-    <p class="overview-sub" data-i18n>No install. Shogi with any mix of human and AI players, Hanafuda Koi-Koi against the computer, and the Pentarch deterministic auto-battler. Pick a game to begin.</p>
-  </div>
-
   <nav class="slice-menu" id="sliceMenu" aria-label="Game chooser"></nav>
 
-  <main id="gameHost" class="game-host"></main>
+  <main id="gameHost" class="game-host play-stage"></main>
 
-  <footer class="foot">
-    <div class="foot-inner">
-      <span>Carino<b>遊び</b> — <span data-i18n>part of the</span> <a href="https://carino.systems/">carino.systems</a> <span data-i18n>workshop.</span></span>
-      <span>将棋 Shogi · 花札 Hanafuda · 戦 Pentarch Battle · <span id="year">2026</span></span>
+  <div class="as-foot">
+    <footer class="site-foot">
+      <div class="sf-links"><a href="https://github.com/MiguelCarino/Asobi" target="_blank" rel="noopener" data-i18n>Source</a><a href="https://carino.systems/legal.html" data-i18n>Legal &amp; privacy</a><a href="https://carino.systems/">carino.systems</a></div>
+      <div class="sf-line">Carino <b>遊び</b> · AGPL-3.0 · 将棋 Shogi · 花札 Hanafuda · 戦 Pentarch Battle · <span id="year">2026</span></div>
+    </footer>
+  </div>
+
+  <!-- Help and pause: one Branding modal, filled with the open game's rules. -->
+  <div class="modal-scrim" id="helpScrim" hidden>
+    <div class="modal as-help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="modal-head">
+        <div class="as-mh"><div class="modal-title" id="helpTitle" data-i18n>How to play</div><div class="modal-sub" id="helpSub"></div></div>
+        <button type="button" class="modal-x" id="helpX" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="as-touch">
+          <div class="modal-sub" data-i18n>Touch</div>
+          <p data-i18n>Tap a piece or a card, then tap where it goes. Help and Pause are in the top bar.</p>
+        </div>
+        <div id="helpGame" class="as-rules"></div>
+        <dl class="as-keys" id="helpKeys"></dl>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn" id="helpFull" data-i18n>Fullscreen</button>
+        <button type="button" class="btn btn-primary" id="helpResume" data-i18n>Resume</button>
+      </div>
     </div>
-  </footer>
+  </div>
 
-  <!-- games register into window.GAMES -->
-  <script src="carino-clock.js" defer></script>
+  <!-- the shared navbar (it loads carino-clock.js), language, i18n, the
+       slice router; then the games register into window.GAMES. No
+       data-immersive: the chooser is a scrolling page, and a bar that slid
+       away there would pull the page up under the reader. -->
+  <script src="carino-navbar.js" data-app="遊び" data-repo="Asobi" defer></script>
   <script src="carino-lang.js" defer></script>
   <script src="i18n.js" defer></script>
+  <script src="carino-ui.js" defer></script>
   <script src="js/shogi.js"></script>
   <script src="js/hanafuda.js"></script>
   <script src="js/pentarch.js"></script>

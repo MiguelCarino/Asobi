@@ -608,7 +608,7 @@
     // side column
     const side = el("div", "shogi-side");
     const banner = el("div", "shogi-banner");
-    const statusP = el("div", "panel");
+    const statusP = el("div", "as-panel");
     statusP.appendChild(gt(el("div", "panel-h"), "対局 · Status"));
     const status = el("div", "shogi-status");
     statusP.appendChild(status);
@@ -617,7 +617,7 @@
     btnrow.appendChild(btn("待った", "btn", undo));
     btnrow.appendChild(btn("投了", "btn", resign));
     btnrow.appendChild(btn("反転", "btn", () => { S.flipped = !S.flipped; render(); }));
-    const logP = el("div", "panel");
+    const logP = el("div", "as-panel");
     logP.appendChild(gt(el("div", "panel-h"), "棋譜 · Moves"));
     const logList = el("ol", "shogi-log");
     logP.appendChild(logList);
@@ -652,9 +652,9 @@
 
     /* ---------- control helpers ---------- */
     function seg(opts, val, cb) {
-      const box = el("div", "seg");
+      const box = el("div", "as-seg");
       opts.forEach(([v, label]) => {
-        const b = gt(el("button", v === val ? "active" : ""), label);
+        const b = gt(el("button", "toggle-btn" + (v === val ? " active" : "")), label);
         b.type = "button";
         b.dataset.v = v;
         b.addEventListener("click", () => {
@@ -666,7 +666,7 @@
       return box;
     }
     function labelEl(t) { return gt(el("label", "lbl"), t); }
-    function btn(t, cls, cb) { const b = gt(el("button", "btn " + (cls === "btn-accent" ? "btn-accent" : "")), t); b.type = "button"; b.addEventListener("click", cb); return b; }
+    function btn(t, cls, cb) { const b = gt(el("button", "btn" + (cls === "btn-accent" ? " btn-primary" : "")), t); b.type = "button"; b.addEventListener("click", cb); return b; }
 
     /* ---------- interaction ---------- */
     function isHumanControlled(sd) {
@@ -724,7 +724,7 @@
       const box = el("div", "shogi-promo");
       box.appendChild(el("h4", null, "成りますか？"));
       const row = el("div", "row");
-      const yes = el("button", "btn btn-accent", "成 (promote)");
+      const yes = el("button", "btn btn-primary", "成 (promote)");
       const no = el("button", "btn", "不成 (keep)");
       yes.type = no.type = "button";
       yes.addEventListener("click", () => { document.body.removeChild(back); cb(true); });
@@ -783,6 +783,7 @@
       S.aiSeq++;
       clearTimeout(S.aiTimer); S.aiTimer = null;
       S.thinking = false;
+      announce();
     }
 
     /* ---------- AI scheduling ---------- */
@@ -815,7 +816,11 @@
       S.aiRunning = !S.aiRunning;
       gt(S.els.startBtn, S.aiRunning ? "停止" : "開始");
       if (S.aiRunning) maybeAI(); else { clearTimeout(S.aiTimer); S.aiTimer = null; S.thinking = false; renderStatus(); }
+      announce();
     }
+    // AI 対 AI keeps moving by itself, so it is the one mode with a pause:
+    // the shell's Pause button, P and Space drive 開始 / 停止 through here.
+    function announce() { window.dispatchEvent(new CustomEvent("asobi:paused")); }
 
     /* ---------- buttons ---------- */
     function newGame() {
@@ -865,6 +870,7 @@
       S.els.sideGrp.style.display = S.mode === "hvai" ? "flex" : "none";
       S.els.aiaiGrp.style.display = S.mode === "aiai" ? "flex" : "none";
       newGame();
+      announce();
     }
 
     /* ---------- rendering ---------- */
@@ -1020,8 +1026,8 @@
     render();
     maybeAI();
 
-    // cleanup
-    return function destroy() {
+    // cleanup (and the shell's pause hooks, carried on the same function)
+    function destroy() {
       S.aiSeq++;
       S.aiRunning = false;
       clearTimeout(S.aiTimer);
@@ -1029,7 +1035,27 @@
       window.removeEventListener("carino:langchange", relocalize);
       const back = document.querySelector(".shogi-promo-back");
       if (back && back.parentNode) back.parentNode.removeChild(back);
-    };
+    }
+    destroy.canPause = () => S.mode === "aiai" && !S.gameOver;
+    destroy.isPaused = () => S.mode === "aiai" && !S.aiRunning;
+    destroy.setPaused = (p) => { if (S.mode === "aiai" && !!p === S.aiRunning) toggleAiai(); };
+    return destroy;
+  }
+
+  /* The help screen (the shell's Help, ? or H). One key per line. */
+  function helpHTML() {
+    return [
+      "<h4>将棋 Shogi — quick rules</h4>",
+      "Checkmate the other king. Each side moves one piece per turn; 先手 (Black) moves first.",
+      "<h4>Moving and promotion</h4>",
+      "<ul><li>Click a piece, then one of the highlighted squares.</li>",
+      "<li>A piece that moves into, within or out of the far three ranks may promote (成). You choose, unless it could never move again.</li></ul>",
+      "<h4>Drops</h4>",
+      "A piece you capture changes sides and waits in your hand. On your turn you may drop it on any empty square instead of moving. Two unpromoted pawns may not share a file, and a pawn drop may not give checkmate.",
+      "<h4>Modes and buttons</h4>",
+      "<ul><li>人 対 人: two people at one screen. 人 対 AI: you against the computer. AI 対 AI: watch; 開始 starts it and 停止 stops it.</li>",
+      "<li>新局 new game · 待った undo · 投了 resign · 反転 turn the board round.</li></ul>",
+    ].map((line) => T(line)).join("");
   }
 
   /* ------------------------------------------------------------------ */
@@ -1041,7 +1067,8 @@
       title: "Shogi", jp: "将棋",
       blurb: "Japanese chess. Captured pieces return to play as drops.",
       tag: "9×9 · drops · promotion", hue: "#eab308", glow: "rgba(234,179,8,0.20)",
-      init: init
+      init: init,
+      help: helpHTML
     };
   }
 

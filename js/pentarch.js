@@ -1249,7 +1249,7 @@ var Sound = (function () {
     'Pick a faction to command or 👁 watch all-AI. Same seed + same settings = the same battle.';
 
   var CSS = [
-    '.pt-wrap { display:flex; flex-direction:column; height:calc(100vh - var(--nav-h) - 50px); min-height:480px; font-size:14px; }',
+    '.pt-wrap { display:flex; flex-direction:column; height:100%; min-height:480px; font-size:14px; }',
     '.pt-top { display:flex; align-items:center; gap:12px; padding:8px 16px; border-bottom:1px solid var(--border); background:var(--bg-header); flex:0 0 auto; flex-wrap:wrap; }',
     '.pt-scores { flex:1; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; min-width:200px; }',
     '.pt-scores .s { font-weight:800; font-size:14px; font-variant-numeric:tabular-nums; cursor:pointer; white-space:nowrap; }',
@@ -1289,9 +1289,9 @@ var Sound = (function () {
     '.pt-seed { flex:1; min-width:0; background:var(--card); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--mono); font-size:12px; padding:5px 8px; }',
     '.pt-seed:focus { outline:none; border-color:var(--accent); }',
     '.pt-vmode { cursor:pointer; float:right; color:var(--accent); letter-spacing:0; text-transform:none; }',
-    '.pt-help { font-size:10.5px; line-height:1.45; color:var(--text-muted); }',
-    '.pt-help b { color:var(--text); }',
-    '@media (max-width: 900px) { .pt-wrap { height:auto; min-height:calc(100vh - var(--nav-h) - 50px); } .pt-layout { flex-direction:column; } .pt-arena { min-height:300px; } .pt-side { flex:0 0 auto; width:100%; } }',
+    '@media (prefers-reduced-motion: reduce) { .pt-alert { animation:none; } }',
+    '.pt-paused { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; font-family:var(--mono); font-size:var(--fs-sm); letter-spacing:.2em; text-transform:uppercase; color:var(--text); background:rgba(5,5,5,.45); z-index:4; }',
+    '@media (max-width: 900px) { .pt-wrap { height:auto; min-height:100%; } .pt-layout { flex-direction:column; } .pt-arena { min-height:300px; } .pt-side { flex:0 0 auto; width:100%; } }',
   ].join('\n');
 
   var TEMPLATE = [
@@ -1303,7 +1303,7 @@ var Sound = (function () {
     '    <span class="pt-terrain">—</span>',
     '  </header>',
     '  <div class="pt-layout">',
-    '    <div class="pt-arena"><canvas width="920" height="520"></canvas><div class="pt-alert"></div><div class="pt-overlay"></div></div>',
+    '    <div class="pt-arena"><canvas width="920" height="520"></canvas><div class="pt-alert"></div><div class="pt-overlay"></div><div class="pt-paused" data-gt="Paused" hidden>Paused</div></div>',
     '    <div class="pt-side">',
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Factions">Factions</div><div class="pt-chips pt-facChips"></div></div>',
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Battle length">Battle length</div><div class="pt-chips pt-durChips"></div></div>',
@@ -1321,7 +1321,6 @@ var Sound = (function () {
     '        </div>',
     '        <button class="pt-btn" data-act="restart" data-gt="Restart ⟳">Restart ⟳</button>',
     '      </div>',
-    '      <div class="pt-card pt-help"></div>',
     '    </div>',
     '  </div>',
     '</div>',
@@ -1419,7 +1418,29 @@ var Sound = (function () {
       save(); buildControls(); buildBar();
     }
     function setVMode() { cfg.vehInfinite = !cfg.vehInfinite; if (sim) sim.vehInfinite = cfg.vehInfinite; save(); buildControls(); buildBar(); }
-    function toggleSound() { Sound.setMuted(!Sound.isMuted()); $('.pt-sound').classList.toggle('off', Sound.isMuted()); }
+    function toggleSound() {
+      Sound.setMuted(!Sound.isMuted());
+      $('.pt-sound').classList.toggle('off', Sound.isMuted());
+      try { localStorage.setItem('asobi_pentarch_sound', Sound.isMuted() ? '0' : '1'); } catch (e) {}
+    }
+
+    /* ---------- pause ---------- */
+    // The shell's Pause button, P, Space and the help screen land here. The
+    // loop stops outright (no frames, no music) and picks up where it was.
+    var paused = false;
+    function setPaused(p) {
+      p = !!p;
+      if (p === paused) return;
+      paused = p;
+      $('.pt-paused').hidden = !paused;
+      if (paused) { cancelAnimationFrame(raf); Sound.stopMusic(); }
+      else { last = 0; if (!Sound.isMuted()) Sound.startMusic(); raf = requestAnimationFrame(loop); }
+    }
+
+    /* Reduced motion, read live every frame: the battle runs at RM_RATE of
+       its speed, so it still plays out but nothing darts across the arena. */
+    var motionMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    var RM_RATE = 0.4;
 
     function buildControls() {
       $('.pt-facChips').innerHTML = [2, 3, 4, 5, 6].map(function (n) {
@@ -1540,10 +1561,10 @@ var Sound = (function () {
     window.addEventListener('resize', fit);
 
     function loop(ts) {
-      if (!running) return;
+      if (!running || paused) return;
       if (!last) last = ts;
       var dt = (ts - last) / 1000; last = ts; if (dt > 0.1) dt = 0.1;
-      acc += dt; while (acc >= 1 / 60) { Battle.step(sim, 1 / 60); acc -= 1 / 60; }
+      acc += dt * (motionMQ && motionMQ.matches ? RM_RATE : 1); while (acc >= 1 / 60) { Battle.step(sim, 1 / 60); acc -= 1 / 60; }
       if (Math.abs(arena.clientWidth - lastArenaW) > 2) fit();   // re-fit if layout reflowed
       var sc = cv.width / Battle.W; ctx.setTransform(sc, 0, 0, sc, 0, 0); Battle.draw(ctx, sim); ctx.setTransform(1, 0, 0, 1, 0, 0);
       hud();
@@ -1570,7 +1591,6 @@ var Sound = (function () {
     // forced past their change-signature caches so the new wording lands.
     function relocalize() {
       relabel(root);
-      $('.pt-help').innerHTML = T(HELP_HTML);
       buildControls();
       if (sim) { buildScores(); buildEffects(true); vehSig = ''; buildBar(); }
       if (sim && sim.over) paintOverlay();
@@ -1579,19 +1599,37 @@ var Sound = (function () {
 
     load();
     relabel(root);
-    $('.pt-help').innerHTML = T(HELP_HTML);
     $('.pt-sound').classList.toggle('off', Sound.isMuted());
+    // Sound starts muted. If it was on last time, it comes back on the first
+    // click or tap in the game, never before one.
+    var soundWanted = false;
+    try { soundWanted = localStorage.getItem('asobi_pentarch_sound') === '1'; } catch (e) {}
+    function wakeSound() {
+      root.removeEventListener('pointerdown', wakeSound);
+      if (soundWanted && Sound.isMuted()) toggleSound();
+    }
+    if (soundWanted) root.addEventListener('pointerdown', wakeSound);
     restart();
     raf = requestAnimationFrame(loop);
 
-    return function destroy() {
+    function destroy() {
       running = false;
       cancelAnimationFrame(raf);
+      root.removeEventListener('pointerdown', wakeSound);
       window.removeEventListener('resize', fit);
       window.removeEventListener('carino:langchange', relocalize);
       Sound.stopMusic();
       Sound.setMuted(true);   // next mount starts silent again (autoplay-safe)
-    };
+    }
+    destroy.setPaused = setPaused;
+    destroy.isPaused = function () { return paused; };
+    destroy.toggleSound = toggleSound;
+    return destroy;
+  }
+
+  function helpHTML() {
+    return '<h4>戦 Pentarch Battle</h4><p>' + T(HELP_HTML) + '</p>' +
+      '<h4>' + T('Sound') + '</h4><p>' + T('Sound starts off. 🔊 Sound (or M) turns it on, and it stays on for your next battle after your first click.') + '</p>';
   }
 
   /* ------------------------- registration ------------------------- */
@@ -1603,6 +1641,7 @@ var Sound = (function () {
     tag: "auto-battler · seeded · 2–6 factions",
       hue: "#d1442f", glow: "rgba(209,68,47,0.20)",
       init: init,
+      help: helpHTML,
       engine: Battle   // exposed for headless tests: Battle.resolve({seed}) is deterministic
     };
   }
