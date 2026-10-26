@@ -8,6 +8,21 @@
 
 const I18N = {
     es: {
+        // aria label, map-event banners, Koi-Koi yaku glosses
+        'Game chooser': 'Selector de juegos',
+        '⚠ STAMPEDE INCOMING': '⚠ ¡ESTAMPIDA EN CAMINO!',
+        '⚠ METEOR SHOWER': '⚠ LLUVIA DE METEORITOS',
+        '⚠ MERCENARY ATTACK': '⚠ ATAQUE DE MERCENARIOS',
+        '⚠ MERCENARY CARRIER': '⚠ PORTANAVES MERCENARIO',
+        '⚠ PIZZA ATTACK': '⚠ ATAQUE DE PIZZAS',
+        '⚠ PIRATE ATTACK': '⚠ ATAQUE PIRATA',
+        '⚠ ALIEN ATTACK': '⚠ ATAQUE ALIENÍGENA',
+        '⚠ CLOWN ATTACK': '⚠ ATAQUE DE PAYASOS',
+        '<h4>Yaku</h4>': '<h4>Yaku (combinaciones)</h4>',
+        '<ul><li>五光 Gokō (5 brights) 10 · 四光 Shikō (4, no rain) 8 · 雨四光 Ame-Shikō (4 w/ rain) 7 · 三光 Sankō (3, no rain) 5</li>': '<ul><li>五光 Gokō (5 brillantes) 10 · 四光 Shikō (4, sin lluvia) 8 · 雨四光 Ame-Shikō (4 con lluvia) 7 · 三光 Sankō (3, sin lluvia) 5</li>',
+        '<li>猪鹿蝶 Ino-Shika-Chō (boar+deer+butterfly) 5 · 種 Tane (5+ animals) 1 +1 each extra</li>': '<li>猪鹿蝶 Ino-Shika-Chō (jabalí+ciervo+mariposas) 5 · 種 Tane (5+ animales) 1, +1 por cada extra</li>',
+        '<li>赤短 Akatan (3 red poetry ribbons) 5 · 青短 Aotan (3 blue ribbons) 5 · 短 Tan (5+ ribbons) 1 +1 each extra — these stack</li>': '<li>赤短 Akatan (3 cintas rojas con poema) 5 · 青短 Aotan (3 cintas azules) 5 · 短 Tan (5+ cintas) 1, +1 por cada extra; se acumulan</li>',
+        '<li>カス Kasu (10+ chaff) 1 +1 each extra · 月見酒 Tsukimi-zake (moon+sake) 5 · 花見酒 Hanami-zake (cherry+sake) 5</li></ul>': '<li>カス Kasu (10+ cartas simples) 1, +1 por cada extra · 月見酒 Tsukimi-zake (luna+sake) 5 · 花見酒 Hanami-zake (cerezo+sake) 5</li></ul>',
         // Shell: play controls, help screen, chooser hero and footer
         "More": "Más",
         "Games": "Juegos",
@@ -225,6 +240,21 @@ const I18N = {
         'spectate': 'observar',
     },
     'pt-BR': {
+        // aria label, map-event banners, Koi-Koi yaku glosses
+        'Game chooser': 'Seletor de jogos',
+        '⚠ STAMPEDE INCOMING': '⚠ ESTOURO DE MANADA A CAMINHO',
+        '⚠ METEOR SHOWER': '⚠ CHUVA DE METEOROS',
+        '⚠ MERCENARY ATTACK': '⚠ ATAQUE DE MERCENÁRIOS',
+        '⚠ MERCENARY CARRIER': '⚠ PORTA-AVIÕES MERCENÁRIO',
+        '⚠ PIZZA ATTACK': '⚠ ATAQUE DE PIZZAS',
+        '⚠ PIRATE ATTACK': '⚠ ATAQUE PIRATA',
+        '⚠ ALIEN ATTACK': '⚠ ATAQUE ALIENÍGENA',
+        '⚠ CLOWN ATTACK': '⚠ ATAQUE DE PALHAÇOS',
+        '<h4>Yaku</h4>': '<h4>Yaku (combinações)</h4>',
+        '<ul><li>五光 Gokō (5 brights) 10 · 四光 Shikō (4, no rain) 8 · 雨四光 Ame-Shikō (4 w/ rain) 7 · 三光 Sankō (3, no rain) 5</li>': '<ul><li>五光 Gokō (5 brilhantes) 10 · 四光 Shikō (4, sem chuva) 8 · 雨四光 Ame-Shikō (4 com chuva) 7 · 三光 Sankō (3, sem chuva) 5</li>',
+        '<li>猪鹿蝶 Ino-Shika-Chō (boar+deer+butterfly) 5 · 種 Tane (5+ animals) 1 +1 each extra</li>': '<li>猪鹿蝶 Ino-Shika-Chō (javali+cervo+borboletas) 5 · 種 Tane (5+ animais) 1, +1 por extra</li>',
+        '<li>赤短 Akatan (3 red poetry ribbons) 5 · 青短 Aotan (3 blue ribbons) 5 · 短 Tan (5+ ribbons) 1 +1 each extra — these stack</li>': '<li>赤短 Akatan (3 fitas vermelhas com poema) 5 · 青短 Aotan (3 fitas azuis) 5 · 短 Tan (5+ fitas) 1, +1 por extra; eles se somam</li>',
+        '<li>カス Kasu (10+ chaff) 1 +1 each extra · 月見酒 Tsukimi-zake (moon+sake) 5 · 花見酒 Hanami-zake (cherry+sake) 5</li></ul>': '<li>カス Kasu (10+ cartas comuns) 1, +1 por extra · 月見酒 Tsukimi-zake (lua+saquê) 5 · 花見酒 Hanami-zake (cerejeira+saquê) 5</li></ul>',
         // Shell: play controls, help screen, chooser hero and footer
         "More": "Mais",
         "Games": "Jogos",
@@ -442,6 +472,21 @@ const I18N = {
         'spectate': 'assistir',
     },
     ru: {
+        // aria label, map-event banners, Koi-Koi yaku glosses
+        'Game chooser': 'Выбор игры',
+        '⚠ STAMPEDE INCOMING': '⚠ НАДВИГАЕТСЯ СТАДО',
+        '⚠ METEOR SHOWER': '⚠ МЕТЕОРИТНЫЙ ДОЖДЬ',
+        '⚠ MERCENARY ATTACK': '⚠ АТАКА НАЁМНИКОВ',
+        '⚠ MERCENARY CARRIER': '⚠ АВИАНОСЕЦ НАЁМНИКОВ',
+        '⚠ PIZZA ATTACK': '⚠ АТАКА ПИЦЦЫ',
+        '⚠ PIRATE ATTACK': '⚠ АТАКА ПИРАТОВ',
+        '⚠ ALIEN ATTACK': '⚠ АТАКА ПРИШЕЛЬЦЕВ',
+        '⚠ CLOWN ATTACK': '⚠ АТАКА КЛОУНОВ',
+        '<h4>Yaku</h4>': '<h4>Яку (комбинации)</h4>',
+        '<ul><li>五光 Gokō (5 brights) 10 · 四光 Shikō (4, no rain) 8 · 雨四光 Ame-Shikō (4 w/ rain) 7 · 三光 Sankō (3, no rain) 5</li>': '<ul><li>五光 Gokō (5 ярких) 10 · 四光 Shikō (4, без дождя) 8 · 雨四光 Ame-Shikō (4 с дождём) 7 · 三光 Sankō (3, без дождя) 5</li>',
+        '<li>猪鹿蝶 Ino-Shika-Chō (boar+deer+butterfly) 5 · 種 Tane (5+ animals) 1 +1 each extra</li>': '<li>猪鹿蝶 Ino-Shika-Chō (кабан+олень+бабочки) 5 · 種 Tane (5+ животных) 1, +1 за каждую сверх</li>',
+        '<li>赤短 Akatan (3 red poetry ribbons) 5 · 青短 Aotan (3 blue ribbons) 5 · 短 Tan (5+ ribbons) 1 +1 each extra — these stack</li>': '<li>赤短 Akatan (3 красные ленты со стихами) 5 · 青短 Aotan (3 синие ленты) 5 · 短 Tan (5+ лент) 1, +1 за каждую сверх; они складываются</li>',
+        '<li>カス Kasu (10+ chaff) 1 +1 each extra · 月見酒 Tsukimi-zake (moon+sake) 5 · 花見酒 Hanami-zake (cherry+sake) 5</li></ul>': '<li>カス Kasu (10+ простых карт) 1, +1 за каждую сверх · 月見酒 Tsukimi-zake (луна+сакэ) 5 · 花見酒 Hanami-zake (сакура+сакэ) 5</li></ul>',
         // Shell: play controls, help screen, chooser hero and footer
         "More": "Ещё",
         "Games": "Игры",
@@ -659,6 +704,21 @@ const I18N = {
         'spectate': 'наблюдать',
     },
     ja: {
+        // aria label, map-event banners, Koi-Koi yaku glosses
+        'Game chooser': 'ゲームの選択',
+        '⚠ STAMPEDE INCOMING': '⚠ 暴走する群れが接近中',
+        '⚠ METEOR SHOWER': '⚠ 流星群',
+        '⚠ MERCENARY ATTACK': '⚠ 傭兵の襲撃',
+        '⚠ MERCENARY CARRIER': '⚠ 傭兵の母艦',
+        '⚠ PIZZA ATTACK': '⚠ ピザの襲撃',
+        '⚠ PIRATE ATTACK': '⚠ 海賊の襲撃',
+        '⚠ ALIEN ATTACK': '⚠ エイリアンの襲撃',
+        '⚠ CLOWN ATTACK': '⚠ ピエロの襲撃',
+        '<h4>Yaku</h4>': '<h4>役</h4>',
+        '<ul><li>五光 Gokō (5 brights) 10 · 四光 Shikō (4, no rain) 8 · 雨四光 Ame-Shikō (4 w/ rain) 7 · 三光 Sankō (3, no rain) 5</li>': '<ul><li>五光（光札5枚）10 · 四光（雨なしの4枚）8 · 雨四光（雨を含む4枚）7 · 三光（雨なしの3枚）5</li>',
+        '<li>猪鹿蝶 Ino-Shika-Chō (boar+deer+butterfly) 5 · 種 Tane (5+ animals) 1 +1 each extra</li>': '<li>猪鹿蝶（猪・鹿・蝶）5 · 種（タネ5枚以上）1、1枚増えるごとに+1</li>',
+        '<li>赤短 Akatan (3 red poetry ribbons) 5 · 青短 Aotan (3 blue ribbons) 5 · 短 Tan (5+ ribbons) 1 +1 each extra — these stack</li>': '<li>赤短（赤い文字入り短冊3枚）5 · 青短（青短冊3枚）5 · 短（短冊5枚以上）1、1枚増えるごとに+1。重複して成立します</li>',
+        '<li>カス Kasu (10+ chaff) 1 +1 each extra · 月見酒 Tsukimi-zake (moon+sake) 5 · 花見酒 Hanami-zake (cherry+sake) 5</li></ul>': '<li>カス（カス札10枚以上）1、1枚増えるごとに+1 · 月見酒（月＋盃）5 · 花見酒（桜＋盃）5</li></ul>',
         // Shell: play controls, help screen, chooser hero and footer
         "More": "その他",
         "Games": "ゲーム一覧",

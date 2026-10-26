@@ -1089,8 +1089,8 @@
   }
 
   function rulesHTML() {
-    // Each line is its own key. The 役 (yaku) list has no entries on purpose —
-    // those are the game's own Japanese terms and stay as they are.
+    // Each line is its own key. In the 役 (yaku) list the names (kanji and
+    // romaji) stay as the game's own terms; only the English glosses change.
     return [
       '<h4>花札 Koi-Koi — quick rules</h4>',
       'Match flower cards by <b>month</b> to capture them, build <b>yaku</b> (scoring combos), then decide to <b>Stop</b> and bank your points or call <b>Koi-Koi</b> to press your luck for more.',

@@ -164,6 +164,7 @@
 
   /* ---------- language switch (called by i18n.js after it re-applies) ---- */
   function relocalize() {
+    $("#sliceMenu").setAttribute("aria-label", T("Game chooser"));
     document.querySelectorAll("#sliceMenu .slice").forEach((s) => {
       const g = (window.GAMES || {})[s.dataset.id];
       if (!g) return;

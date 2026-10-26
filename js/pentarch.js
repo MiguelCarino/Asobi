@@ -1308,7 +1308,7 @@ var Sound = (function () {
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Factions">Factions</div><div class="pt-chips pt-facChips"></div></div>',
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Battle length">Battle length</div><div class="pt-chips pt-durChips"></div></div>',
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Seed (deterministic)">Seed (deterministic)</div><div class="pt-seedrow"><input class="pt-seed" inputmode="numeric" spellcheck="false" title="same seed + same settings = same battle" data-gt-title="same seed + same settings = same battle"><button class="pt-chip" data-act="reseed" title="new random seed" data-gt-title="new random seed">🎲</button></div></div>',
-    '      <div class="pt-card"><div class="pt-lbl"><span data-gt="Battle effects">Battle effects</span> · <span class="pt-pts">0</span> pts</div><div class="pt-effbar"></div></div>',
+    '      <div class="pt-card"><div class="pt-lbl"><span data-gt="Battle effects">Battle effects</span> · <span class="pt-pts">0</span> <span data-gt="pts">pts</span></div><div class="pt-effbar"></div></div>',
     '      <div class="pt-card"><div class="pt-lbl"><span data-gt="Vehicles">Vehicles</span> <span class="pt-vmode" data-act="vmode">limited ⇄</span></div><div class="pt-vehbar"></div></div>',
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Roster (tap to disable)">Roster (tap to disable)</div><div class="pt-chips pt-rosterChips"></div></div>',
     '      <div class="pt-card"><div class="pt-lbl" data-gt="Map events">Map events</div><div class="pt-chips pt-eventChips"></div></div>',
@@ -1526,7 +1526,7 @@ var Sound = (function () {
     }
     function showAlert() {   // red-alert banner while a map event is active
       var el = $('.pt-alert'), on = sim.alert && sim.t < sim.alert.until;
-      el.classList.toggle('show', !!on); if (on) el.textContent = sim.alert.label;
+      el.classList.toggle('show', !!on); if (on) el.textContent = T(sim.alert.label);
     }
 
     function onClick(e) {
