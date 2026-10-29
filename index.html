@@ -27,9 +27,59 @@
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Asobi — Board Games", "url": "https://asobi.carino.systems/", "description": "Play Shogi (将棋) — human vs human, human vs AI, or AI vs AI — Hanafuda Koi-Koi (花札) against the computer, and the Pentarch deterministic auto-battler. Runs entirely in your browser.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
   <!-- /carino:head -->
   <link rel="icon" href="logo.webp" type="image/webp">
+  <!-- Theme before first paint, so neither theme flashes the other:
+       ?theme=gold|color (review links; not stored) > carino-theme cookie
+       (shared across *.carino.systems) > localStorage > Gold & Black. -->
+  <meta name="theme-color" content="#050505" id="carinoThemeColor">
+  <script>
+  (function () {
+    var d = document.documentElement, t = null;
+    function pick(v) { return v === 'gold' ? 'gold' : (v === 'color' || v === 'colour') ? 'color' : null; }
+    try { t = pick(new URLSearchParams(location.search).get('theme')); } catch (e) {}
+    if (!t) { try { var m = document.cookie.match(/(?:^|;\s*)carino-theme=([^;]*)/); if (m) t = pick(decodeURIComponent(m[1])); } catch (e) {} }
+    if (!t) { try { t = pick(localStorage.getItem('carino-theme')); } catch (e) {} }
+    t = t || 'gold';
+    d.setAttribute('data-carino-theme', t);
+    var dark = d.getAttribute('data-theme') !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    var meta = document.getElementById('carinoThemeColor');
+    if (meta) meta.content = t === 'gold' ? '#050505' : (dark ? '#0e1420' : '#eef3fc');
+  })();
+  </script>
   <link rel="stylesheet" href="fonts/carino-fonts.css">
   <link rel="stylesheet" href="carino-ui.css">
   <link href="css/styles.css" rel="stylesheet">
+  <!-- Colourful theme + the switch; nothing applies until data-carino-theme="color". -->
+  <link rel="stylesheet" href="carino-theme.css">
+  <style>
+    /* the hero mark in both colourings; the theme picks one */
+    .mark.mk-color, :root[data-carino-theme="color"] .mark.mk-gold { display: none; }
+    :root[data-carino-theme="color"] .mark.mk-color { display: block; }
+    /* Colourful: carino-theme.css remaps the tokens, so everything that reads
+       one follows; these are the values written for black, here and in the
+       games' own injected CSS (these selectors outrank it). The shogi board
+       (dark wood under pale pieces), the hanafuda card backs and Pentarch's
+       canvas arena stay as drawn on purpose: they are the game's stage. */
+    :root[data-carino-theme="color"] { --border-soft: var(--border); }
+    :root[data-carino-theme="color"] body::before { background: var(--stage-grad); }
+    /* shogi: its gold slice hue (set inline by js/app.js) is too pale on white */
+    :root[data-carino-theme="color"] .slice-menu .slice[data-id="shogi"] { --hue: var(--ct-amber) !important; }
+    :root[data-carino-theme="color"] .shogi-board { box-shadow: var(--ct-shadow-2), inset 0 0 60px rgba(0,0,0,.4); }
+    :root[data-carino-theme="color"] .hand-piece .k { color: var(--text); }
+    :root[data-carino-theme="color"] .shogi-banner.win { color: var(--ct-on-accent); }
+    :root[data-carino-theme="color"] .shogi-log li:nth-child(odd) { background: var(--ct-hover); }
+    :root[data-carino-theme="color"] .shogi-promo-back { background: var(--ct-scrim); }
+    /* hanafuda */
+    :root[data-carino-theme="color"] .hana-zone.field { background: var(--bg-elev); border-color: var(--border); }
+    :root[data-carino-theme="color"] .hana-card .hc-emblem { filter: none; }
+    :root[data-carino-theme="color"] .hana-card.t-bright { box-shadow: 0 0 0 1px var(--accent-dim), var(--ct-shadow-1); }
+    :root[data-carino-theme="color"] .hana-card.t-bright .hc-type { color: var(--ct-on-accent); }
+    :root[data-carino-theme="color"] .hana-card.clickable:hover { box-shadow: var(--ct-shadow-2); }
+    :root[data-carino-theme="color"] .hana-card.match { box-shadow: 0 0 0 3px color-mix(in srgb, var(--jade) 30%, transparent); }
+    :root[data-carino-theme="color"] .yaku-list li.new { background: var(--ct-ok-bg); }
+    /* pentarch: chrome follows; the overlays sit on the dark arena */
+    :root[data-carino-theme="color"] .pt-overlay button { color: var(--ct-on-accent); }
+    :root[data-carino-theme="color"] .pt-overlay, :root[data-carino-theme="color"] .pt-paused { color: #e3e3e3; }
+  </style>
 </head>
 <body class="state-overview">
 
@@ -46,7 +96,7 @@
        footer, collapses the slices into a bar and gives the game the stage. -->
   <header class="landing-hero">
     <div class="lh-wrap">
-      <div class="lh-mark" aria-hidden="true"><img class="mark" src="logo.svg" alt="" width="100" height="100"></div>
+      <div class="lh-mark" aria-hidden="true"><img class="mark mk-gold" src="logo.svg" alt="" width="100" height="100"><img class="mark mk-color" src="logo-color.svg" alt="" width="100" height="100"></div>
       <h1><span data-i18n>Shogi, Hanafuda and Pentarch.</span><br><span class="gold" data-i18n>Play them in your browser.</span></h1>
       <p class="lh-lede"><strong>Carino Asobi</strong> <span data-i18n>has Shogi with any mix of human and AI players, Hanafuda Koi-Koi against the computer, and the Pentarch auto-battler.</span></p>
       <ul class="lh-situations">
@@ -95,6 +145,7 @@
        data-immersive: the chooser is a scrolling page, and a bar that slid
        away there would pull the page up under the reader. -->
   <script src="carino-navbar.js" data-app="遊び" data-repo="Asobi" defer></script>
+  <script src="carino-theme.js" data-mark="logo.svg" data-mark-color="logo-color.svg" defer></script>
   <script src="carino-lang.js" defer></script>
   <script src="i18n.js" defer></script>
   <script src="carino-ui.js" defer></script>
