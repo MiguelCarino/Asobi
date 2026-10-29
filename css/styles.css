@@ -1,7 +1,7 @@
 /* =====================================================================
    Carino Asobi — shared stylesheet
    Tokens, base and components (navbar actions .cs-btn, .btn, .toggle-btn,
-   .modal, .kbd, .alert, .landing-hero, .slice-menu, .site-foot, the play
+   .modal, .kbd, .alert, .landing-hero, .slice-menu, the play
    stage) come from carino-ui.css, linked first. This file adds Asobi's own
    names — the Japanese font and accents, the game panels (.as-panel), the
    segmented groups (.as-seg) and badges (.as-badge) — and lays out the two
@@ -52,7 +52,6 @@ body.state-overview .slice-menu { width: min(1040px, calc(100% - 32px)); margin:
 .as-empty { margin: 24px auto; }
 
 .as-foot { width: min(1040px, calc(100% - 32px)); margin: 0 auto; }
-.site-foot b { color: var(--accent); font-family: var(--jp); }
 
 /* ===================== A game (play page) ===================== */
 /* body.play-body (carino-ui.css) is the full-height column; the slices are

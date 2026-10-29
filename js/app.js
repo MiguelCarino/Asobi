@@ -181,7 +181,6 @@
   window.asobiRelocalize = relocalize;
 
   document.addEventListener("DOMContentLoaded", () => {
-    $("#year").textContent = new Date().getFullYear();
     if (!window.GAMES || !gameList().length) {
       $("#sliceMenu").innerHTML = `<div class="alert warn as-empty">${esc(T("No games loaded."))}</div>`;
       return;
