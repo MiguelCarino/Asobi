@@ -83,6 +83,20 @@
   </style>
 </head>
 <body class="state-overview">
+<!-- Key words: the navbar shows them, translated, under its Language tab. -->
+<ul data-carino-words hidden>
+  <li>Games</li>
+  <li>How to play</li>
+  <li>Resume</li>
+  <li>Fullscreen</li>
+</ul>
+
+
+<!-- What this page must say: the navbar shows it in its About window. -->
+<div data-carino-about hidden>
+  <p data-i18n>Runs in your browser. Nothing you add here is uploaded.</p>
+</div>
+
 
   <!-- Game controls, carried into the shared navbar (carino-navbar.js).
        Shown only while a game is open; Help is the one kept on phones. -->
@@ -104,7 +118,6 @@
         <li data-i18n>No install and no account. Pick a game below; each one has its own link.</li>
         <li data-i18n>Every game has a help screen: press ? or the Help button.</li>
       </ul>
-      <p class="as-privacy"><span class="privacy-line" data-i18n>Runs in your browser. Nothing you add here is uploaded.</span></p>
     </div>
   </header>
 
