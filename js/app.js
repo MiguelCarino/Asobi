@@ -3,7 +3,7 @@
    Builds the slice-menu chooser (Branding .slice-menu, routed by
    CarinoUI.slices in carino-ui.js) and mounts self-contained game modules.
    Each game registers itself as window.GAMES[id] = { title, jp, blurb, tag,
-   hue, init(container) -> destroyFn, help() -> HTML, keys }. init() builds
+   hue, init(container) -> destroyFn }. init() builds
    the game's DOM into the container and returns an optional cleanup
    function; that function may also carry the game's play controls:
      destroy.setPaused(bool) / destroy.isPaused()   pause (P, Space, button)
@@ -29,7 +29,7 @@
   const gameList = () => Object.entries(window.GAMES || {});
   let active = null;
   let ctl = null;            // the open game's destroy function (+ its controls)
-  let pausedByHelp = false;
+  let pausedByAbout = false;
   let lastFocus = null;
 
   /* ---------- slice menu ---------- */
@@ -61,7 +61,6 @@
   function paintControls() {
     const inGame = !!active;
     $("#toChooser").hidden = !inGame;
-    $("#helpBtn").hidden = !inGame;
     const pb = $("#pauseBtn");
     pb.hidden = !inGame || !canPause();
     const p = isPaused();
@@ -69,40 +68,26 @@
     pb.setAttribute("aria-pressed", String(p));
   }
 
-  /* ---------- help overlay ---------- */
-  const COMMON_KEYS = [
-    ["<span class=\"kbd\">?</span> <span class=\"kbd\">H</span>", "Help"],
-    ["<span class=\"kbd\">Esc</span>", "Close"],
-    ["<span class=\"kbd\">F</span>", "Fullscreen"],
-  ];
-  function fillHelp() {
-    const g = active && window.GAMES[active];
-    if (!g) return;
-    $("#helpSub").textContent = `${g.jp || ""} ${g.title}`;
-    $("#helpGame").innerHTML = typeof g.help === "function" ? g.help() : "";
-    const keys = [];
-    if (canPause()) keys.push(["<span class=\"kbd accent\">P</span> <span class=\"kbd accent\">Space</span>", "Pause"]);
-    if (ctl && typeof ctl.toggleSound === "function") keys.push(["<span class=\"kbd\">M</span>", "Sound"]);
-    (g.keys || []).forEach((k) => keys.push(k));
-    $("#helpKeys").innerHTML = keys.concat(COMMON_KEYS)
-      .map(([k, label]) => `<dt>${k}</dt><dd>${esc(T(label))}</dd>`).join("");
-    $("#helpX").setAttribute("aria-label", T("Close"));
-  }
-  const helpOpen = () => !$("#helpScrim").hidden;
-  function openHelp() {
-    if (!active || helpOpen()) return;
-    fillHelp();
-    lastFocus = document.activeElement;
-    $("#helpScrim").hidden = false;
-    if (canPause() && !isPaused()) { pausedByHelp = true; setPaused(true); }
-    $("#helpResume").focus();
-  }
-  function closeHelp(resume) {
-    if (!helpOpen()) return;
-    $("#helpScrim").hidden = true;
-    if (pausedByHelp || (resume && isPaused())) setPaused(false);
-    pausedByHelp = false;
-    if (lastFocus && lastFocus.focus && lastFocus !== document.body) lastFocus.focus();
+  /* ---------- the About window ----------
+     The game pauses while the navbar's About window is open and picks up
+     again when it closes. */
+  const aboutOpen = () => { const p = document.getElementById("cnAbout"); return !!p && !p.hidden; };
+  // Pause on the way in, and resume on the way out only what the window paused.
+  function watchAbout() {
+    const pop = document.getElementById("cnAbout");
+    if (!pop) return;
+    let was = !pop.hidden;
+    new MutationObserver(() => {
+      const now = !pop.hidden;
+      if (now === was) return;
+      was = now;
+      if (now) {
+        if (canPause() && !isPaused()) { pausedByAbout = true; setPaused(true); }
+      } else if (pausedByAbout) {
+        pausedByAbout = false;
+        if (isPaused()) setPaused(false);
+      }
+    }).observe(pop, { attributes: true, attributeFilter: ["hidden"] });
   }
   function toggleFullscreen() {
     const d = document, e = d.documentElement;
@@ -110,19 +95,16 @@
     if (e.requestFullscreen) e.requestFullscreen().catch(() => {});
   }
 
-  /* The fleet's play keys, only while a game is open and never while typing:
-     ? or H help, P or Space pause, Esc close, F fullscreen, M sound. */
+  /* The fleet's play keys, never while typing and only in a game: P or Space
+     pause, F fullscreen, M sound. */
   function onKey(e) {
-    if (!active || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
     const tg = e.target;
     if (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName || ""))) return;
     const k = e.key;
-    if (helpOpen()) {
-      if (k === "Escape" || k === "?" || k === "h" || k === "H") { e.preventDefault(); closeHelp(); }
-      return;
-    }
-    if (k === "?" || k === "h" || k === "H") { e.preventDefault(); openHelp(); }
-    else if ((k === "p" || k === "P" || (k === " " && !(tg && /^(BUTTON|A)$/.test(tg.tagName || "")))) && canPause()) {
+    // No game key acts behind the About window (its own Esc closes it).
+    if (aboutOpen() || !active) return;
+    if ((k === "p" || k === "P" || (k === " " && !(tg && /^(BUTTON|A)$/.test(tg.tagName || "")))) && canPause()) {
       e.preventDefault(); setPaused(!isPaused());
     }
     else if ((k === "m" || k === "M") && ctl && typeof ctl.toggleSound === "function") ctl.toggleSound();
@@ -131,7 +113,9 @@
 
   /* ---------- mounting ---------- */
   function unmount() {
-    closeHelp();
+    const x = document.querySelector("#cnAbout .cn-x");
+    if (aboutOpen() && x) x.click();
+    pausedByAbout = false;
     if (ctl) { try { ctl(); } catch (e) {} ctl = null; }
     active = null;
   }
@@ -176,7 +160,6 @@
     const empty = $("#sliceMenu .as-empty");
     if (empty) empty.textContent = T("No games loaded.");
     paintControls();
-    if (helpOpen()) fillHelp();
   }
   window.asobiRelocalize = relocalize;
 
@@ -187,14 +170,9 @@
     }
     buildSlices();
 
-    $("#helpBtn").addEventListener("click", openHelp);
-    $("#helpX").addEventListener("click", () => closeHelp());
-    $("#helpResume").addEventListener("click", () => closeHelp(true));
-    $("#helpFull").addEventListener("click", () => { closeHelp(); toggleFullscreen(); });
-    $("#helpScrim").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeHelp(); });
+    watchAbout();
     $("#pauseBtn").addEventListener("click", () => setPaused(!isPaused()));
-    // A game's own Rules button, and a game that paused or resumed itself.
-    window.addEventListener("asobi:help", openHelp);
+    // A game that paused or resumed itself.
     window.addEventListener("asobi:paused", paintControls);
     document.addEventListener("keydown", onKey);
 

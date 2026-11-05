@@ -99,11 +99,10 @@
 
 
   <!-- Game controls, carried into the shared navbar (carino-navbar.js).
-       Shown only while a game is open; Help is the one kept on phones. -->
+       Shown only while a game is open; Games is the one kept on phones. -->
   <div class="as-actions" data-carino-actions>
-    <a class="cs-btn" href="#" id="toChooser" hidden>← <span data-i18n>Games</span></a>
+    <a class="cs-btn" href="#" id="toChooser" data-priority="1" hidden>← <span data-i18n>Games</span></a>
     <button type="button" class="cs-btn" id="pauseBtn" aria-pressed="false" hidden>Pause</button>
-    <button type="button" class="cs-btn" id="helpBtn" data-priority="1" aria-haspopup="dialog" aria-controls="helpScrim" hidden>? <span data-i18n>Help</span></button>
   </div>
 
   <!-- The chooser is a suite page: the gold-C hero, then one slice per game.
@@ -116,7 +115,6 @@
       <p class="lh-lede"><strong>Carino Asobi</strong> <span data-i18n>has Shogi with any mix of human and AI players, Hanafuda Koi-Koi against the computer, and the Pentarch auto-battler.</span></p>
       <ul class="lh-situations">
         <li data-i18n>No install and no account. Pick a game below; each one has its own link.</li>
-        <li data-i18n>Every game has a help screen: press ? or the Help button.</li>
       </ul>
     </div>
   </header>
@@ -126,28 +124,6 @@
   <main id="gameHost" class="game-host play-stage"></main>
 
   <div class="as-foot">
-  </div>
-
-  <!-- Help and pause: one Branding modal, filled with the open game's rules. -->
-  <div class="modal-scrim" id="helpScrim" hidden>
-    <div class="modal as-help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-      <div class="modal-head">
-        <div><div class="modal-title" id="helpTitle" data-i18n>How to play</div><div class="modal-sub" id="helpSub"></div></div>
-        <button type="button" class="modal-x" id="helpX" aria-label="Close">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="as-touch touch-only">
-          <div class="modal-sub" data-i18n>Touch</div>
-          <p data-i18n>Tap a piece or a card, then tap where it goes. Help and Pause are in the top bar.</p>
-        </div>
-        <div id="helpGame" class="as-rules"></div>
-        <dl class="kbd-grid" id="helpKeys"></dl>
-      </div>
-      <div class="modal-foot">
-        <button type="button" class="btn" id="helpFull" data-i18n>Fullscreen</button>
-        <button type="button" class="btn btn-primary" id="helpResume" data-i18n>Resume</button>
-      </div>
-    </div>
   </div>
 
   <!-- the shared navbar (it loads carino-clock.js), language, i18n, the

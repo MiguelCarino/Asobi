@@ -68,19 +68,6 @@ body.state-module .slice-menu .slice.active { box-shadow: inset 0 2px 0 var(--hu
 body.state-module .slice-menu .slice.active .s-text { color: var(--hue, var(--accent)); }
 .as-state { padding: 32px 16px; max-width: 640px; margin: 0 auto; }
 
-/* ===================== Help overlay ===================== */
-.as-help { max-width: 600px; }
-.as-rules { font-size: var(--fs-sm); color: var(--text-sec); line-height: 1.6; }
-.as-rules h4 { font-family: var(--jp); color: var(--accent); margin: 12px 0 4px; font-size: var(--fs-sec); }
-.as-rules h4:first-child { margin-top: 0; }
-.as-rules code { font-family: var(--mono); color: var(--accent); }
-.as-rules ul { margin: 4px 0 4px 18px; padding: 0; }
-.as-rules b { color: var(--text); }
-/* the key list (.kbd-grid) sits under the rules, past a rule line */
-#helpKeys { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
-.as-touch { margin: 0 0 14px; }
-.as-touch p { margin: 4px 0 0; }
-
 /* ===================== Helpers for game modules ===================== */
 /* Buttons are Branding's .btn / .btn-primary and segmented choices are
    .toggle-btn; these are only the containers Branding has no class for. */

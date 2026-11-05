@@ -613,12 +613,10 @@
       gt(b, d);
       diffSeg.appendChild(b);
     });
-    var rulesBtn = gt(el("button", "btn"), "Rules");
     var status = el("div", "hana-status");
     top.appendChild(newBtn);
     top.appendChild(roundsSeg);
     top.appendChild(diffSeg);
-    top.appendChild(rulesBtn);
     top.appendChild(el("span", "grow"));
     top.appendChild(status);
     root.appendChild(top);
@@ -1061,11 +1059,9 @@
       match.difficulty = b.dataset.d;
       Array.prototype.forEach.call(diffSeg.children, function (x) { x.classList.toggle("active", x === b); });
     });
-    // The rules live in the shell's help screen (Branding .modal), with the keys.
-    rulesBtn.addEventListener("click", function () { window.dispatchEvent(new CustomEvent("asobi:help")); });
 
     /* ---------- language switch ---------- */
-    // Re-label the build-once controls, rebuild the rules panel, repaint the
+    // Re-label the build-once controls, repaint the
     // current commentary line, and re-render the table. The match, the round
     // and every card in play are untouched.
     function relocalize() {
@@ -1088,27 +1084,6 @@
     };
   }
 
-  function rulesHTML() {
-    // Each line is its own key. In the 役 (yaku) list the names (kanji and
-    // romaji) stay as the game's own terms; only the English glosses change.
-    return [
-      '<h4>花札 Koi-Koi — quick rules</h4>',
-      'Match flower cards by <b>month</b> to capture them, build <b>yaku</b> (scoring combos), then decide to <b>Stop</b> and bank your points or call <b>Koi-Koi</b> to press your luck for more.',
-      '<h4>A turn</h4>',
-      '<ul><li>Play a hand card — if it shares a month with field card(s), capture; otherwise it joins the field.</li>',
-      '<li>Draw the top stock card and resolve it the same way.</li>',
-      '<li>If you formed a new yaku, choose <code>Stop</code> or <code>Koi-Koi</code>.</li></ul>',
-      '<h4>Scoring</h4>',
-      'On Stop: base = your yaku total. <code>×2</code> if base ≥ 7, and another <code>×2</code> if you called Koi-Koi this round (they combine). The loser scores 0.',
-      '<h4>Yaku</h4>',
-      '<ul><li>五光 Gokō (5 brights) 10 · 四光 Shikō (4, no rain) 8 · 雨四光 Ame-Shikō (4 w/ rain) 7 · 三光 Sankō (3, no rain) 5</li>',
-      '<li>猪鹿蝶 Ino-Shika-Chō (boar+deer+butterfly) 5 · 種 Tane (5+ animals) 1 +1 each extra</li>',
-      '<li>赤短 Akatan (3 red poetry ribbons) 5 · 青短 Aotan (3 blue ribbons) 5 · 短 Tan (5+ ribbons) 1 +1 each extra — these stack</li>',
-      '<li>カス Kasu (10+ chaff) 1 +1 each extra · 月見酒 Tsukimi-zake (moon+sake) 5 · 花見酒 Hanami-zake (cherry+sake) 5</li></ul>',
-      'The deck is 48 cards (12 months × 4). Deal is 8 hand / 8 hand / 8 field, leaving 24 in the stock. If 3 field cards share your card’s month you take all three.'
-    ].map(function (line) { return T(line); }).join("");
-  }
-
   /* =================================================================
      Registration + exports
      ================================================================= */
@@ -1120,7 +1095,6 @@
       blurb: "Koi-Koi: match flower cards by month, build yaku, press your luck.",
       tag: "48 cards · Koi-Koi · vs AI", hue: "#d1442f", glow: "rgba(209,68,47,0.20)",
       init: init,
-      help: rulesHTML
     };
   }
 

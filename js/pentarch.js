@@ -1244,10 +1244,6 @@ var Sound = (function () {
     });
   }
 
-  var HELP_HTML = 'Capture a flag\'s <b>generator</b> (the separate circle) to own the flag, then hold the flag to score. ' +
-    'Infantry reinforce automatically; time vehicles from the reserve. Spend battle points on effects. ' +
-    'Pick a faction to command or 👁 watch all-AI. Same seed + same settings = the same battle.';
-
   var CSS = [
     '.pt-wrap { display:flex; flex-direction:column; height:100%; min-height:480px; font-size:14px; }',
     '.pt-top { display:flex; align-items:center; gap:12px; padding:8px 16px; border-bottom:1px solid var(--border); background:var(--bg-header); flex:0 0 auto; flex-wrap:wrap; }',
@@ -1425,7 +1421,7 @@ var Sound = (function () {
     }
 
     /* ---------- pause ---------- */
-    // The shell's Pause button, P, Space and the help screen land here. The
+    // The shell's Pause button, P and Space land here. The
     // loop stops outright (no frames, no music) and picks up where it was.
     var paused = false;
     function setPaused(p) {
@@ -1627,11 +1623,6 @@ var Sound = (function () {
     return destroy;
   }
 
-  function helpHTML() {
-    return '<h4>戦 Pentarch Battle</h4><p>' + T(HELP_HTML) + '</p>' +
-      '<h4>' + T('Sound') + '</h4><p>' + T('Sound starts off. 🔊 Sound (or M) turns it on, and it stays on for your next battle after your first click.') + '</p>';
-  }
-
   /* ------------------------- registration ------------------------- */
   if (typeof window !== "undefined") {
     window.GAMES = window.GAMES || {};
@@ -1641,7 +1632,6 @@ var Sound = (function () {
     tag: "auto-battler · seeded · 2–6 factions",
       hue: "#d1442f", glow: "rgba(209,68,47,0.20)",
       init: init,
-      help: helpHTML,
       engine: Battle   // exposed for headless tests: Battle.resolve({seed}) is deterministic
     };
   }
